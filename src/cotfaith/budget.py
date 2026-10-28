@@ -13,8 +13,9 @@ from collections.abc import Callable, Sequence
 BUDGETS = (128, 256, 512, 1024)
 UNCAPPED_LIMIT = 8192
 
-# Qwen3 technical report (arXiv 2505.09388), "thinking budget". Verify the exact
-# wording against the report in Phase 0 before any reported run.
+# The stop-thinking instruction from the Qwen3 technical report (arXiv
+# 2505.09388, p. 11), verbatim. The leading blank line is ours: the cut can
+# fall mid-sentence.
 EARLY_EXIT = (
     "\n\nConsidering the limited time by the user, I have to give the solution"
     " based on the thinking directly now.\n</think>.\n\n"
