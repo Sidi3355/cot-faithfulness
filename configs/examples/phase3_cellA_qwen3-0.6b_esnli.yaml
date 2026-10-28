@@ -1,0 +1,15 @@
+# Phase 3 cell A: thinking off, explain-then-predict, labels-only demos, sampled.
+experiment_id: example-phase3-cellA
+phase: phase3
+model: Qwen/Qwen3-0.6B
+model_revision: main
+dataset: esnli
+template: ep
+demos: labels_only
+length: concise
+thinking: false
+decoding: {mode: sample, temperature: 0.6, top_p: 0.95, top_k: 20, min_p: 0.0, n: 5}
+interventions_path: data/interventions/natural_esnli.parquet
+interventions_sha256: unfrozen
+max_new_tokens: 500
+smoke: true
