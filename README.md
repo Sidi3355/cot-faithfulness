@@ -1,6 +1,5 @@
 # cot-faithfulness
 
-Replication and extension of Siegel et al. (arXiv 2503.13445) to Qwen3 thinking traces.
+Counterfactual faithfulness of Qwen3 chain-of-thought traces, built on Siegel et al. (arXiv 2503.13445).
 
 - [PLAN.md](PLAN.md): experimental plan
-- [DEVIATIONS.md](DEVIATIONS.md): deviations from the paper, its code, and the original brief

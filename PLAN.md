@@ -1,12 +1,13 @@
-# Experimental plan: counterfactual faithfulness of explanations and thinking traces
+# Experimental plan: counterfactual faithfulness of chain-of-thought traces
 
-Replication of Siegel, Heess, Perez-Ortiz & Camburu, *Verbosity Tradeoffs and the Impact of
-Scale on the Faithfulness of LLM Self-Explanations* (arXiv 2503.13445; code
-`google-deepmind/corr_faith`), and extension of its test from user-facing explanations to the
-hidden thinking trace of Qwen3 hybrid-thinking models.
+A chain-of-thought faithfulness experiment built on Siegel, Heess, Perez-Ortiz & Camburu,
+*Verbosity Tradeoffs and the Impact of Scale on the Faithfulness of LLM Self-Explanations*
+(arXiv 2503.13445; code `google-deepmind/corr_faith`). The paper tests whether user-facing
+explanations mention the inserted words that changed a model's answer. This experiment applies the
+same test to the hidden thinking trace of Qwen3 hybrid-thinking models, and compares trace and
+explanation with the weights held fixed.
 
-Status: draft v1. Decisions are logged in §13; deviations from the paper and from the original
-brief are logged in [DEVIATIONS.md](DEVIATIONS.md).
+Status: draft v2. Decisions are logged in §13.
 
 ---
 
@@ -14,35 +15,59 @@ brief are logged in [DEVIATIONS.md](DEVIATIONS.md).
 
 | ID | Question | Hypothesis | Test |
 |---|---|---|---|
-| RQ1 | Does our pipeline reproduce the paper? | H1: for the two anchor models the paper evaluated, the paper's reported value lies inside our 95% CI. | §7.1 |
-| RQ2 | Do the paper's findings hold for Qwen3, thinking off? | H2: φ-CCT and F-AUROC rise with parameter count; verbosity moves models along a TPR/FPR frontier. | §7.2 (descriptive, 5 sizes) |
-| RQ3 | How do the metrics behave on thinking traces? | H3: traces have higher TPR (CT) *and* higher FPR than explanations, so CT overstates trace faithfulness relative to φ-CCT. | §7.3 |
-| RQ4 | Same weights: is the trace more or less faithful than the explanation at equal accuracy? | H4 (two-sided): trace φ-CCT differs from explanation φ-CCT at matched accuracy. | §7.4 (primary) |
+| RQ1 (main) | With the same weights, is the hidden trace more or less faithful than the visible explanation at equal accuracy? | H1 (two-sided): trace φ-CCT differs from explanation φ-CCT at matched accuracy. | §7.4 (primary) |
+| RQ2 | How do the paper's metrics behave on thinking traces? | H2: traces have higher TPR (CT) *and* higher FPR than explanations, so CT overstates trace faithfulness relative to φ-CCT. | §7.3 |
+| RQ3 | Explanation baseline: do the paper's findings hold for Qwen3 with thinking off? | H3: φ-CCT and F-AUROC rise with parameter count; verbosity moves models along a TPR/FPR frontier. | §7.2 (descriptive, 5 sizes) |
+| RQ4 | Implementation check: does our implementation of the paper's protocol reproduce its numbers? | H4: for the two anchor models the paper evaluated, the paper's reported value lies inside our 95% CI. | §7.1 |
 | RQ5 (Phase 4, optional) | Can RL raise trace faithfulness? | Not specified until Phase 4 is reached. | — |
 
-Precondition (checked before RQ3/RQ4 are interpreted): with thinking on, flips from real
+Precondition (checked before RQ1 and RQ2 are interpreted): with thinking on, flips from real
 interventions exceed the flip rate of a meaning-preserving null edit (§5, P0).
 
-## 2. What is replicated and what is new
+## 2. Relation to the paper
 
-- **Replicated:** the counterfactual test (Atanasova et al. 2023) with the paper's interventions,
-  naturalness filter, prompts, three datasets, two explanation orders, five length instructions,
-  two demo variants, and the paper's metrics (CT, φ-CCT, original CCT, F-AUROC).
+### 2.1 What is taken from the paper, and what is new
+
+- **Taken from the paper:** the counterfactual test (Atanasova et al. 2023), its interventions,
+  naturalness filter, prompts, three datasets, explanation orders, length instructions, demo
+  variants, and metrics (CT, φ-CCT, original CCT, F-AUROC). Phase 1 runs this protocol on Qwen3 with
+  thinking off as the explanation baseline, and checks the implementation on two models the paper
+  evaluated.
 - **New:**
   1. The test applied to Qwen3 thinking traces, with the thinking budget as the verbosity axis.
   2. A within-weights comparison of trace (thinking on) and explanation (thinking off).
   3. Noise-floor controls for flips (N1 rerun, N2 null edit).
   4. Gameability checks (dummy explainers, input-copy rate).
   5. Sampling-based measurement for reasoning models (§4.3).
-- **Closest prior work** (to verify against full text; several were checked only through search
-  snippets because arxiv.org is blocked in the planning environment):
-  - Siegel et al. 2024 (ACL, CCT).
-  - Atanasova et al. 2023 (ACL, CT).
-  - Cheah, Pérez-Ortiz, Siegel & Camburu 2026 (arXiv 2607.21090): RL on a φ-CCT reward, applied to explanations.
-  - Mayne et al. 2026 (arXiv 2602.02639): explanations vs raw CoT on Qwen3, scored by counterfactual simulatability.
-  - Hase & Potts 2026 (arXiv 2602.20710): counterfactual simulation training.
-  - Turpin et al. 2023; Lanham et al. 2023; Chen et al. 2025 ("Reasoning models don't always say what they think").
-  - Chua & Evans 2025; Arcuschin et al. 2025 (arXiv 2503.08679); Qwen3 technical report (arXiv 2505.09388).
+
+### 2.2 Implementation differences from the paper's code
+
+These are small and don't change the protocol:
+- **Inference:** vLLM in bf16, instead of HF `generate` in fp16 at batch size 1. Phase 1b measures
+  the effect.
+- **Naturalness judge:** Qwen2.5-32B-Instruct-AWQ (4-bit), instead of Qwen2.5-72B-Instruct, so it fits
+  comfortably on one L40S.
+- **Word sampling:** the word list is sorted before sampling. The code samples from a Python
+  `frozenset`, whose order changes with the per-process hash seed, so the paper's exact words can't
+  be regenerated. Our intervention set is therefore new, and is frozen once and reused everywhere.
+- **Label probabilities:** taken from the top-20 logprobs instead of the full softmax. Mass outside
+  the top 20 is treated as 0, and the row is flagged if label mass is below 0.8.
+- **Qwen3 handling:** thinking is set explicitly; answers are parsed after `</think>`; thinking is
+  capped at 8,192 tokens.
+- **Confidence intervals:** a 10,000-resample bootstrap clustered by example.
+
+### 2.3 Closest prior work
+
+To verify against the full texts: several of these were checked only through search snippets,
+because arxiv.org is blocked in the planning environment.
+
+- Siegel et al. 2024 (ACL, CCT).
+- Atanasova et al. 2023 (ACL, CT).
+- Cheah, Pérez-Ortiz, Siegel & Camburu 2026 (arXiv 2607.21090): RL on a φ-CCT reward, applied to explanations.
+- Mayne et al. 2026 (arXiv 2602.02639): explanations vs raw CoT on Qwen3, scored by counterfactual simulatability.
+- Hase & Potts 2026 (arXiv 2602.20710): counterfactual simulation training.
+- Turpin et al. 2023; Lanham et al. 2023; Chen et al. 2025 ("Reasoning models don't always say what they think").
+- Chua & Evans 2025; Arcuschin et al. 2025 (arXiv 2503.08679); Qwen3 technical report (arXiv 2505.09388).
 
 ## 3. Fixed setup
 
@@ -51,7 +76,7 @@ interventions exceed the flip rate of a meaning-preserving null edit (§5, P0).
 | Role | Models | Phases |
 |---|---|---|
 | Subject | Qwen3-0.6B, 1.7B, 4B, 8B, 14B (original hybrid release, post-trained, not "-Base", not "2507") | 1, 2, 3 |
-| Replication anchors (evaluated in the paper) | Qwen2.5-1.5B-Instruct, Qwen2.5-7B-Instruct | 1 |
+| Anchors (evaluated in the paper; implementation check) | Qwen2.5-1.5B-Instruct, Qwen2.5-7B-Instruct | 1 |
 | Naturalness judge | Qwen2.5-32B-Instruct-AWQ (paper: Qwen2.5-72B-Instruct) | intervention filtering |
 
 - Every model is pinned to a Hugging Face commit hash, recorded in each run's metadata.
@@ -71,7 +96,7 @@ interventions exceed the flip rate of a meaning-preserving null edit (§5, P0).
   single words only, never a word already in the sentence).
   - **Fix:** the word list is sorted before sampling. The code samples from a Python `frozenset`,
     whose order changes with the per-process hash seed, so the paper's exact words cannot be
-    regenerated (see DEVIATIONS.md D4).
+    regenerated (§2.2).
 - **Candidates per example:** set by the code's formula, `ceil(ceil(10,000 / N) / 0.05)`.
 
 | Dataset | Examples | Candidates per example | Kept per example (top 5%) | Interventions |
@@ -145,7 +170,7 @@ interventions exceed the flip rate of a meaning-preserving null edit (§5, P0).
 
 | Phase | Decoding | Why |
 |---|---|---|
-| 1 (replication) | Greedy | The paper uses greedy "to avoid spurious changes"; this keeps the comparison exact. |
+| 1 (explanation baseline) | Greedy | The paper uses greedy "to avoid spurious changes"; this keeps Phase 1 comparable to the paper. |
 | 2–3 (traces and comparison) | Sampling, K = 5, T = 0.6, top-p 0.95, top-k 20, min-p 0, **identical settings in both thinking modes** | Qwen warns that greedy decoding in thinking mode degrades performance and causes repetition loops. After a trace, the label probabilities are conditional on that one trace. Long traces amplify numerical nondeterminism. Using the same settings in both modes keeps decoding from being a second difference between them. |
 
 - Seeds are per request, derived from (experiment, example, intervention, row type).
@@ -213,7 +238,7 @@ All conditions use the same filtered intervention file, the same demos per examp
 Generate about 832,860 candidates, score them with the judge, keep the per-example top 5%, and
 freeze the file with its hash.
 
-### Phase 1: replication (thinking off, greedy)
+### Phase 1: explanation baseline with the paper's protocol (thinking off, greedy)
 
 - **Models:** 2 anchors and 5 Qwen3 models (thinking off), on 3 datasets.
 - **Conditions per model × dataset (20):** 2 orders (PE, EP) × 5 length instructions × 2 demo variants.
@@ -252,7 +277,7 @@ freeze the file with its hash.
 - Cells A and B use the same demos. They differ only in the thinking switch and in whether an
   explanation is requested.
 - EP is used because a trace also precedes the answer.
-- The thinking-on-with-explanation cell is dropped (DEVIATIONS.md B3).
+- There is no thinking-on-with-explanation cell.
 
 ### Phase 4: RL (optional)
 
@@ -273,10 +298,10 @@ designed or run until Phase 3 is complete.**
   checking whether two CIs overlap.
 - F-AUROC CIs are recomputed per resample from the resampled TPR/FPR at every verbosity setting.
 - φ is reported as undefined (NaN, with the 2×2 table) when E or I is constant, never as 0.
-- **Primary family** (§7.4, H4): 3 tests, one per dataset, Holm-corrected at α = 0.05.
+- **Primary family** (§7.4, H1): 3 tests, one per dataset, Holm-corrected at α = 0.05.
   Every other test is secondary, Holm-corrected within its named family, and labelled as such.
 
-### 7.1 Replication (H1)
+### 7.1 Implementation check (H4)
 
 - For each anchor × dataset × metric × condition the paper reports, check whether the paper's value
   lies inside our 95% CI, and report the signed difference.
@@ -287,19 +312,19 @@ designed or run until Phase 3 is complete.**
   - the F-AUROC vs φ-CCT relationship;
   - the association of each metric with scale, descriptive only, since there are 7 models.
 
-### 7.2 Qwen3 thinking off (H2)
+### 7.2 Explanation baseline, Qwen3 thinking off (H3)
 
 Per dataset: each metric against log10 parameters, for the 5 sizes. Spearman ρ is reported
 descriptively, with no significance test given n = 5.
 
-### 7.3 Metric behaviour on traces (H3; secondary family)
+### 7.3 Metric behaviour on traces (H2; secondary family)
 
 - Trace vs explanation TPR, FPR, φ-CCT and F-AUROC, per model × dataset (Cell B uncapped vs Cell A empty), by paired bootstrap.
 - Dummy-explainer outcomes.
 - Copy rate against E_paper − E_novel.
 - The same analyses repeated with E_word and E_novel.
 
-### 7.4 Trace vs explanation at matched accuracy (H4; primary)
+### 7.4 Trace vs explanation at matched accuracy (H1; primary)
 
 **(a) Primary: accuracy-matched curve test, per dataset.**
 - Thinking-off points: 5 models × 5 lengths (Cell A).
@@ -410,23 +435,21 @@ results/<phase>/<model>/<dataset>/<condition_id>/
 - **Same weights is not the same computation.** The two modes were trained as different behaviours.
 - **Unusual usage.** Few-shot prompting with thinking on is atypical, and the demos contain no traces.
 - **Different interventions.** Our intervention set differs from the paper's (the hash-order issue and
-  a different judge), so the replication tests the procedure, not identical inputs.
+  a different judge), so the implementation check tests the procedure, not identical inputs.
 - **Few model sizes.** With 7 models, scale trends are descriptive.
 
 ## 12. The write-up must explicitly discuss
 
 1. Why Phase 1 uses greedy decoding and Phases 2–3 use sampling (§4.3), quoting the paper's rationale.
 2. That truncating a trace is not making it concise, and that budgets also change the decision.
-3. The judge change (32B-AWQ) and the non-reproducibility of the paper's intervention words.
-4. That the thinking-on-with-explanation cell, and with it the brief's trace-vs-explanation agreement
-   check, were dropped.
-5. All entries in DEVIATIONS.md.
+3. The implementation differences in §2.2, in particular the judge change and the
+   non-reproducibility of the paper's intervention words.
 
 ## 13. Decision log
 
 | Decision | Choice | Source |
 |---|---|---|
-| Decoding | Greedy for replication; K-sample for thinking work; same settings in both modes | You |
+| Decoding | Greedy for the explanation baseline (Phase 1); K-sample for thinking work; same settings in both modes | You |
 | Interventions | ≥10k per dataset, per-example top 5% (the code) | You |
 | Judge | Qwen2.5-32B-Instruct-AWQ | You |
 | Primary E | E_paper | You |
@@ -434,7 +457,8 @@ results/<phase>/<model>/<dataset>/<condition_id>/
 | Trace prompt | PO template, labels-only demos | You |
 | Verbosity for traces | Thinking budgets | You |
 | (I, E) rows | One row per sampled trace | You |
-| Thinking on + explanation | Dropped | You |
+| Thinking on + explanation | Not included | You |
+| Deviations | Small tweaks listed in §2.2; no separate file | You |
 | Statistics | 10k cluster bootstrap, paired differences, pre-registered family, Holm | You |
 | Accuracy matching | Curve test (primary), regression (secondary) | You |
 | Phase 4 | Kept, untouched until reached | You |
@@ -442,7 +466,7 @@ results/<phase>/<model>/<dataset>/<condition_id>/
 | Compute | Must fit EC2 g6e.xlarge | You |
 | Anchors + both demo variants | Included | Default (my recommendation) |
 | Phase 3 thinking-off cell | Sampled, EP only, 5 lengths (M1) | Default |
-| Metric-vs-metric replication | Included, scale part descriptive (M2) | Default |
+| Metric-vs-metric comparison (as in the paper) | Included, scale part descriptive (M2) | Default |
 | Reference cell R | Included | Default (from Q5 recommendation) |
 | Phase 1b pipeline-equivalence check | Included | Default (new in this draft) |
 | K, tie-break, budgets, cap | 5; mean label prob; 128/256/512/1024/uncapped; 8,192 | Default |
@@ -454,10 +478,10 @@ results/<phase>/<model>/<dataset>/<condition_id>/
 ## 14. Open items
 
 - **arxiv.org access** is needed to:
-  - extract the paper's per-model numbers for H1 (Figures 6 and 10 and any appendix tables);
+  - extract the paper's per-model numbers for H4 (Figures 6 and 10 and any appendix tables);
   - verify prompt wording against the paper text;
   - confirm the paper's CI method.
 - Check whether the paper's filtered interventions or per-model results were released. If they were,
-  load them for the anchors and remove deviation D4 for Phase 1.
+  load them for the anchors instead of our own set.
 - Phase 0 verifications: batch-invariant mode on the L40S, the exact Qwen3 stop phrase, and the
   32B-AWQ load and throughput.
