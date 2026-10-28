@@ -20,6 +20,13 @@ uv sync --extra interventions
 PYTHON=.venv/bin/python scripts/fetch_data.sh
 ```
 
+```bash
+.venv/bin/python scripts/fetch_tokenizers.py
+```
+
+The last step downloads tokenizer and config files (no weights) at the pinned revisions into
+`data/hf`. It needs `huggingface.co` and Hugging Face's download hosts (`*.hf.co`) to be reachable.
+
 On the GPU instance, add `--extra gpu` to `uv sync` to install vLLM.
 
 ## Tests
@@ -28,8 +35,8 @@ On the GPU instance, add `--extra gpu` to `uv sync` to install vLLM.
 .venv/bin/pytest -q
 ```
 
-Tests marked `data`, `nlp` or `upstream` are skipped if the datasets, the spaCy model and WordNet, or
-the submodule are missing.
+Tests marked `data`, `nlp`, `upstream` or `hf` are skipped if the datasets, the spaCy model and
+WordNet, the submodule, or the tokenizers are missing.
 
 ## Intervention candidates
 
@@ -50,5 +57,6 @@ package versions). The naturalness judge then scores these on the GPU.
 | `src/cotfaith/detect.py` | Mention detectors (E_paper, E_word, E_novel) and copy rates |
 | `src/cotfaith/flips.py`, `metrics.py` | Flip indicators, CT, φ-CCT, CCT, F-AUROC |
 | `src/cotfaith/bootstrap.py`, `analysis.py` | Clustered bootstrap, curve test, regression |
+| `src/cotfaith/models.py`, `tokens.py` | Pinned model revisions; chat templates, think tokens, label tokens |
 | `src/cotfaith/config.py`, `configs/` | One validated YAML config per run |
 | `third_party/corr_faith` | Upstream code at commit c6e862b (Apache-2.0) |

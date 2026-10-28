@@ -55,4 +55,5 @@ markers = [
   "data: needs the datasets in data/ (scripts/fetch_data.sh)",
   "nlp: needs spaCy en_core_web_lg and the WordNet corpus",
   "upstream: compares against the upstream corr_faith code in third_party/",
+  "hf: needs the pinned tokenizers in data/hf (scripts/fetch_tokenizers.py)",
 ]

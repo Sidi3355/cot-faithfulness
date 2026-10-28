@@ -4,7 +4,7 @@ import os
 import pytest
 
 import upstream
-from cotfaith import datasets
+from cotfaith import datasets, models
 
 os.environ.setdefault("NLTK_DATA", str(upstream.DATA_DIR / "nltk_data"))
 
@@ -23,11 +23,19 @@ def _have_nlp() -> bool:
   ).is_dir()
 
 
+def _have_tokenizers() -> bool:
+  return all(
+      list((upstream.DATA_DIR / "hf").glob(f"models--{m.name.replace('/', '--')}/snapshots/{m.revision}/tokenizer.json"))
+      for m in models.MODELS.values()
+  )
+
+
 def pytest_collection_modifyitems(config, items):
   checks = {
       "data": (_have_data(), "datasets missing: run scripts/fetch_data.sh"),
       "nlp": (_have_nlp(), "spaCy en_core_web_lg or WordNet missing"),
       "upstream": (upstream.available(), "third_party/corr_faith submodule missing"),
+      "hf": (_have_tokenizers(), "tokenizers missing: run scripts/fetch_tokenizers.py"),
   }
   for item in items:
     for marker, (ok, reason) in checks.items():
