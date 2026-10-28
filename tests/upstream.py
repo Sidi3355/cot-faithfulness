@@ -2,8 +2,9 @@
 
 Upstream imports torch, transformers and several API clients at module level,
 even in modules whose prompt and intervention logic doesn't use them. Those
-modules are replaced with inert stand-ins, so the pure-Python parts can be
-imported without installing them.
+that aren't installed are replaced with inert stand-ins, so the pure-Python
+parts can be imported. Installed ones (e.g. transformers, for tokenizers) are
+imported for real first, so a stand-in never shadows them.
 """
 
 import functools
@@ -36,7 +37,15 @@ class _StubModule(types.ModuleType):
 
 @functools.cache
 def _install_stubs() -> None:
+  # Import every installed module before stubbing anything, so that e.g.
+  # transformers doesn't mistake a torch stand-in for an installed torch.
+  missing = []
   for name in _STUBBED:
+    try:
+      importlib.import_module(name)
+    except ImportError:
+      missing.append(name)
+  for name in missing:
     if name in sys.modules:
       continue
     stub = _StubModule(name)

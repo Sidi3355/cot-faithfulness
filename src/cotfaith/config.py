@@ -13,7 +13,7 @@ from typing import Literal
 import yaml
 from pydantic import BaseModel, ConfigDict, model_validator
 
-from cotfaith import budget, prompts
+from cotfaith import budget, models, prompts
 from cotfaith.datasets import DATASET_NAMES
 
 Phase = Literal["phase1", "phase1b", "phase2", "phase3"]
@@ -24,7 +24,6 @@ BASE_FILE = "base.parquet"
 ROWS_FILE = "rows.parquet"
 META_FILE = "meta.json"
 
-_COMMIT = re.compile(r"[0-9a-f]{40}")
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 
 
@@ -70,7 +69,7 @@ class RunConfig(_Strict):
   experiment_id: str
   phase: Phase
   model: str
-  # Hugging Face commit hash; required unless this is a smoke run.
+  # Must equal the pinned revision in cotfaith.models, unless this is a smoke run.
   model_revision: str
   dataset: Literal[DATASET_NAMES]
   template: prompts.Template
@@ -90,10 +89,13 @@ class RunConfig(_Strict):
 
   @property
   def is_qwen3(self) -> bool:
-    return self.model.startswith("Qwen/Qwen3-")
+    return models.get(self.model).hybrid_thinking
 
   @model_validator(mode="after")
   def _check(self):
+    info = models.get(self.model)  # Raises for models outside the study.
+    if info.role == "judge":
+      raise ValueError("the naturalness judge is not a subject model")
     prompts.include_explanations_in_fewshot(self.template, self.demos)  # Raises if invalid.
     if self.template is prompts.Template.PREDICT_ONLY and self.length != "empty":
       raise ValueError("length instructions need a template with an explanation")
@@ -105,8 +107,8 @@ class RunConfig(_Strict):
       raise ValueError("budgets are required with thinking and not allowed without it")
     if any(b <= 0 or b >= budget.UNCAPPED_LIMIT for b in self.budgets):
       raise ValueError(f"budgets must lie in (0, {budget.UNCAPPED_LIMIT})")
-    if not self.smoke and not _COMMIT.fullmatch(self.model_revision):
-      raise ValueError("reported runs need model_revision pinned to a 40-hex commit")
+    if not self.smoke and self.model_revision != info.revision:
+      raise ValueError(f"reported runs need the pinned revision {info.revision}")
     if not self.smoke and not _SHA256.fullmatch(self.interventions_sha256):
       raise ValueError("reported runs need the frozen intervention file's SHA-256")
     if self.phase in ("phase1", "phase1b"):

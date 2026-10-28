@@ -79,7 +79,23 @@ because arxiv.org is blocked in the planning environment.
 | Anchors (evaluated in the paper; implementation check) | Qwen2.5-1.5B-Instruct, Qwen2.5-7B-Instruct | 1 |
 | Naturalness judge | Qwen2.5-32B-Instruct-AWQ (paper: Qwen2.5-72B-Instruct) | intervention filtering |
 
-- Every model is pinned to a Hugging Face commit hash, recorded in each run's metadata.
+- Every model is pinned to a Hugging Face commit (`src/cotfaith/models.py`), and configs for reported
+  runs are rejected unless they use that revision. The pins are each repo's head on 2026-10-28.
+  The last change to the Qwen3 repos was a LICENSE file (2025-07-26), and their tokenizer config
+  was last updated on 2025-05-19, so these are the original hybrid-thinking release.
+
+| Model | Revision |
+|---|---|
+| Qwen3-0.6B | `c1899de289a04d12100db370d81485cdf75e47ca` |
+| Qwen3-1.7B | `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e` |
+| Qwen3-4B | `1cfa9a7208912126459214e8b04321603b3df60c` |
+| Qwen3-8B | `b968826d9c46dd6066d109eabc6255188de91218` |
+| Qwen3-14B | `40c069824f4251a91eefaf281ebe4c544efd3e18` |
+| Qwen2.5-1.5B-Instruct | `989aa7980e4cf806f80c7fef2b1adb7bc71aa306` |
+| Qwen2.5-7B-Instruct | `a09a35458c702b33eeacc393d103063234e8bc28` |
+| Qwen2.5-32B-Instruct-AWQ | `5c7cb76a268fc6cfbb9c4777eb24ba6e27f9ee6c` |
+
+- All five Qwen3 sizes share one tokenizer, and the three Qwen2.5 models share another.
 - Parameter counts are the nominal counts in the model names, plotted as log10. This matches
   `corr_faith/analysis/model_metadata.py`.
 
@@ -132,6 +148,14 @@ because arxiv.org is blocked in the planning environment.
 - **Length instructions:** very concise, concise, empty (the control), comprehensive, very comprehensive.
 - **Thinking switch:** Qwen3 thinking is set explicitly with `enable_thinking`. Without it the code
   would silently enable thinking, because that is the Qwen3 chat template's default.
+  - With `False`, the template pre-fills an empty `<think>\n\n</think>\n\n`.
+  - With `True`, the model writes `<think>` itself.
+- **System prompt:** none is passed. Qwen2.5's template then inserts its default ("You are Qwen,
+  created by Alibaba Cloud. You are a helpful assistant."), as it did in the paper's runs. Qwen3's
+  template has no default system prompt.
+- **Label position:** e-SNLI labels start with a word token. ECQA and ComVE labels are digits, which
+  Qwen tokenizes separately from the preceding space. So the label probabilities are read at the
+  digit token, as in the code.
 
 ### 3.5 Inference
 
@@ -237,12 +261,12 @@ All conditions use the same filtered intervention file, the same demos per examp
   - unterminated rate and parse-failure rate;
   - prefix-cache hit rate.
 - **Judge check:** Qwen2.5-32B-AWQ loads on the L40S, and its throughput is timed on 1,000 candidates.
-- **Platform checks:** whether batch-invariant mode is supported; the exact stop phrase; chat-template
-  behaviour with `enable_thinking` set to True and to False.
+- **Platform check:** whether vLLM's batch-invariant mode is supported on the L40S. (The stop phrase
+  and the chat-template behaviour have been checked; see Progress below.)
 - **Exit criterion:** all tests pass, and the compute estimate (§9) is re-costed from measured numbers.
 
 **Progress** (CPU work done without a GPU; see README for how to run it):
-- Done, with 168 passing tests:
+- Done, with 190 passing tests:
   - Repo, lockfile and the pinned `third_party/corr_faith` submodule.
   - Dataset download at pinned commits, with WordNet 3.0 checksummed.
   - Loaders and prompts, verified byte-identical to the code for every template, demo variant and
@@ -253,10 +277,16 @@ All conditions use the same filtered intervention file, the same demos per examp
   - Metrics and the bootstrap, checked against known values.
   - The E detectors, the parser (whose regexes match the code), budget planning, configs, the
     curve test and the GEE regression.
-- Needs huggingface.co access (allowed in the environment's network settings) or the EC2 instance:
-  - the Qwen3 chat template with `enable_thinking`;
-  - label-token sets for the TVD;
-  - exact token-level budget cuts on real tokenizers.
+  - Tokenizer checks on the real, pinned tokenizers:
+    - the chat templates with and without thinking;
+    - `<think>`/`</think>` survive vLLM's default decoding, since they aren't special tokens;
+    - the early-exit phrase closes thinking with the real `</think>` token;
+    - token-exact budget cuts;
+    - label-token sets identical to the code's.
+  - The early-exit phrase, verified against the Qwen3 technical report (p. 11).
+- Note for the runner: vLLM applies each model's `generation_config.json` sampling defaults (Qwen3:
+  T 0.6, top-p 0.95, top-k 20) unless they're overridden. So every run sets all sampling
+  parameters explicitly, including temperature 0 for the greedy Phase 1 runs.
 - Needs the GPU:
   - the vLLM runner;
   - judge scoring and freezing the intervention file;
