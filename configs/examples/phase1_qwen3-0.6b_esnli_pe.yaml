@@ -1,0 +1,15 @@
+# Phase 1 (explanation baseline): greedy, thinking off, paper's prompt.
+experiment_id: example-phase1
+phase: phase1
+model: Qwen/Qwen3-0.6B
+model_revision: main  # Pin to a commit hash for reported runs.
+dataset: esnli
+template: pe
+demos: with_explanations
+length: empty
+thinking: false
+decoding: {mode: greedy}
+interventions_path: data/interventions/natural_esnli.parquet
+interventions_sha256: unfrozen
+max_new_tokens: 500
+smoke: true

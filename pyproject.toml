@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cotfaith"
+version = "0.1.0"
+description = "Counterfactual faithfulness of chain-of-thought traces, built on Siegel et al. (arXiv 2503.13445)."
+readme = "README.md"
+requires-python = "==3.12.*"
+dependencies = [
+  "numpy>=2.2,<3",
+  # Kept on 2.x, the major version the upstream corr_faith code was written against.
+  "pandas>=2.2,<3",
+  "pyarrow>=18",
+  "scipy>=1.14",
+  "statsmodels>=0.14",
+  "scikit-learn>=1.6",
+  "nltk>=3.9",
+  "pydantic>=2.9",
+  "pyyaml>=6",
+]
+
+[project.optional-dependencies]
+# Intervention generation (CPU only): spaCy POS tagging with a pinned model.
+interventions = [
+  "spacy>=3.8,<3.9",
+  "en-core-web-lg @ https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.8.0/en_core_web_lg-3.8.0-py3-none-any.whl",
+]
+# Model inference (EC2 / GPU only).
+gpu = [
+  "vllm==0.32.0",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8",
+  # Needed only to import the upstream corr_faith modules in equivalence tests.
+  "absl-py>=2",
+  "dm-tree>=0.1.8",
+  "ml-collections>=0.1",
+  "bidict>=0.23",
+  "psutil>=5",
+  "retry>=0.9",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "data: needs the datasets in data/ (scripts/fetch_data.sh)",
+  "nlp: needs spaCy en_core_web_lg and the WordNet corpus",
+  "upstream: compares against the upstream corr_faith code in third_party/",
+]

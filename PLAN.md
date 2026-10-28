@@ -85,7 +85,11 @@ because arxiv.org is blocked in the planning environment.
 
 ### 3.2 Datasets
 
-- Full test splits as in the code: e-SNLI (9,842 examples), ECQA (2,194), ComVE (999), 13,035 in total.
+- Full test splits as built by the code: e-SNLI (9,824 examples), ECQA (2,184), ComVE (999),
+  13,007 in total.
+  - The code hard-codes 9,842 for e-SNLI (a transposed-digit typo) and 2,194 for ECQA (the count
+    before the code drops 10 rows whose answer matches two options). Neither changes the
+    candidate counts below.
 - Few-shot demos: 10 training examples, sampled once per test example with the code's seeded RNG.
   The same demos are used for the base run, all interventions of that example, and all controls.
 
@@ -99,12 +103,16 @@ because arxiv.org is blocked in the planning environment.
     regenerated (§2.2).
 - **Candidates per example:** set by the code's formula, `ceil(ceil(10,000 / N) / 0.05)`.
 
-| Dataset | Examples | Candidates per example | Kept per example (top 5%) | Interventions |
-|---|---|---|---|---|
-| e-SNLI | 9,842 | 40 | 2 | ≈19,684 |
-| ECQA | 2,194 | 100 | 5 | ≈10,970 |
-| ComVE | 999 | 220 | 11 | ≈10,989 |
-| Total | 13,035 | ≈832,860 candidates | | ≈41,643 |
+| Dataset | Examples | With a noun or verb | Candidates per example | Candidates (generated) | Kept per example (top 5%) | Interventions |
+|---|---|---|---|---|---|---|
+| e-SNLI | 9,824 | 9,823 | 40 | 392,920 | 2 | ≈19,646 |
+| ECQA | 2,184 | 2,180 | 100 | 218,000 | 5 | ≈10,900 |
+| ComVE | 999 | 998 | 220 | 219,560 | 11 | ≈10,978 |
+| Total | 13,007 | 13,001 | | 830,480 | | ≈41,524 |
+
+- The 6 examples with no noun or verb (e.g. "Times Square in New York.") get no interventions, as in
+  the code. They still contribute base runs, and so accuracy.
+- Interventions are approximate until the judge has run, because ties at the threshold are kept.
 
 - **Naturalness score:** the code's prompt, verbatim. The score is the probability of a "Yes" first
   token, summed over the top-20 next tokens (the code's method). Candidates are kept if they are at
@@ -233,10 +241,33 @@ All conditions use the same filtered intervention file, the same demos per examp
   behaviour with `enable_thinking` set to True and to False.
 - **Exit criterion:** all tests pass, and the compute estimate (§9) is re-costed from measured numbers.
 
+**Progress** (CPU work done without a GPU; see README for how to run it):
+- Done, with 168 passing tests:
+  - Repo, lockfile and the pinned `third_party/corr_faith` submodule.
+  - Dataset download at pinned commits, with WordNet 3.0 checksummed.
+  - Loaders and prompts, verified byte-identical to the code for every template, demo variant and
+    length instruction.
+  - The intervention generator: it matches the code under sorted iteration and is stable across
+    `PYTHONHASHSEED`. All 830,480 candidates are generated.
+  - The naturalness prompt and selection, and the N2 twins.
+  - Metrics and the bootstrap, checked against known values.
+  - The E detectors, the parser (whose regexes match the code), budget planning, configs, the
+    curve test and the GEE regression.
+- Needs huggingface.co access (allowed in the environment's network settings) or the EC2 instance:
+  - the Qwen3 chat template with `enable_thinking`;
+  - label-token sets for the TVD;
+  - exact token-level budget cuts on real tokenizers.
+- Needs the GPU:
+  - the vLLM runner;
+  - judge scoring and freezing the intervention file;
+  - the smoke runs;
+  - the batch-invariance and vLLM-vs-HF checks.
+- Needs R with lme4 on the EC2 instance: the `glmer` regression (§7.4b).
+
 ### Phase 0.5: interventions (once)
 
-Generate about 832,860 candidates, score them with the judge, keep the per-example top 5%, and
-freeze the file with its hash.
+Score the 830,480 generated candidates with the judge, keep the per-example top 5%, and freeze the
+file with its hash.
 
 ### Phase 1: explanation baseline with the paper's protocol (thinking off, greedy)
 
@@ -351,16 +382,16 @@ with accuracies reported alongside but not matched.
 ## 8. Generation counts
 
 - Each condition generates base + N1 + interventions + N2. Per model, that is
-  2 × (13,035 + 41,643) = **109,356 inputs**.
+  2 × (13,007 + 41,524) = **109,062 inputs**.
 
 | Step | Count |
 |---|---|
-| Naturalness judge | ≈832,860 one-token scorings |
-| Phase 1 | 7 models × 20 conditions × 109,356 ≈ **15.3M** short greedy generations |
-| Phase 1b | ≈54,678 HF generations (Qwen2.5-1.5B, original code, batch size 1) |
-| Phase 2 / Cell B | 5 × 109,356 × K = 5 ≈ **2.73M traces** (≤ 8,192 tokens), plus at most 4 short re-answers each |
-| Phase 3 Cell A | 5 × 5 lengths × 109,356 × 5 ≈ **13.7M** short sampled generations |
-| Phase 3 Cell R | 5 × 109,356 × 5 ≈ 2.73M label-only generations |
+| Naturalness judge | 830,480 one-token scorings |
+| Phase 1 | 7 models × 20 conditions × 109,062 ≈ **15.3M** short greedy generations |
+| Phase 1b | ≈54,525 HF generations (13,001 base runs + ≈41,524 interventions; Qwen2.5-1.5B, original code, batch size 1) |
+| Phase 2 / Cell B | 5 × 109,062 × K = 5 ≈ **2.73M traces** (≤ 8,192 tokens), plus at most 4 short re-answers each |
+| Phase 3 Cell A | 5 × 5 lengths × 109,062 × 5 ≈ **13.6M** short sampled generations |
+| Phase 3 Cell R | 5 × 109,062 × 5 ≈ 2.73M label-only generations |
 
 ## 9. Compute (one EC2 g6e.xlarge: 1× L40S 48 GB, 4 vCPU, 32 GiB RAM)
 

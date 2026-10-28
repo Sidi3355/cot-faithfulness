@@ -1,0 +1,15 @@
+# Phase 2 (traces): thinking on, no explanation requested, K = 5 samples.
+experiment_id: example-phase2
+phase: phase2
+model: Qwen/Qwen3-0.6B
+model_revision: main
+dataset: esnli
+template: po
+demos: labels_only
+thinking: true
+budgets: [128, 256, 512, 1024]
+decoding: {mode: sample, temperature: 0.6, top_p: 0.95, top_k: 20, min_p: 0.0, n: 5}
+interventions_path: data/interventions/natural_esnli.parquet
+interventions_sha256: unfrozen
+max_new_tokens: 8256
+smoke: true
