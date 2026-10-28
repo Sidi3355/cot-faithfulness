@@ -19,6 +19,8 @@ dependencies = [
   "nltk>=3.9",
   "pydantic>=2.9",
   "pyyaml>=6",
+  # Tokenizers and chat templates only; torch is installed on the GPU instance via vLLM.
+  "transformers>=4.51",
 ]
 
 [project.optional-dependencies]

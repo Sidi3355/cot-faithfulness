@@ -401,6 +401,7 @@ dependencies = [
     { name = "scikit-learn" },
     { name = "scipy" },
     { name = "statsmodels" },
+    { name = "transformers" },
 ]
 
 [package.optional-dependencies]
@@ -436,6 +437,7 @@ requires-dist = [
     { name = "scipy", specifier = ">=1.14" },
     { name = "spacy", marker = "extra == 'interventions'", specifier = ">=3.8,<3.9" },
     { name = "statsmodels", specifier = ">=0.14" },
+    { name = "transformers", specifier = ">=4.51" },
     { name = "vllm", marker = "extra == 'gpu'", specifier = "==0.32.0" },
 ]
 provides-extras = ["interventions", "gpu"]
