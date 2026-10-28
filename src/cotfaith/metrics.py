@@ -61,6 +61,12 @@ def mention_rate(counts):
   return _ratio(a + b, a + b + c + d)
 
 
+def accuracy(sums):
+  """Share of correct base runs from [n, n_correct] (last axis)."""
+  sums = np.asarray(sums, dtype=float)
+  return _ratio(sums[..., 1], sums[..., 0])
+
+
 def phi(counts):
   """Phi coefficient between E and I (phi-CCT); NaN if E or I is constant."""
   a, b, c, d = _split(counts)
