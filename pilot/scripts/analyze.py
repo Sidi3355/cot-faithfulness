@@ -25,6 +25,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 RAW = ROOT / "pilot" / "results" / "raw"
 OUT = ROOT / "pilot" / "results"
 CONFIGS = ROOT / "pilot" / "configs"
+INTERVENTIONS = ROOT / "data" / "pilot" / "natural_comve.parquet"
 SPEC = datasets.COMVE
 LENGTHS = ("very_concise", "concise", "empty", "comprehensive", "very_comprehensive")
 BUDGETS = ("128", "256", "512", "1024", "uncapped")
@@ -41,7 +42,7 @@ class Data:
   def __init__(self):
     splits = datasets.load_splits("comve", str(ROOT / "data"))
     self.test = splits["test"]
-    self.ints = pd.read_parquet(ROOT / "data" / "pilot" / "natural_comve.parquet")
+    self.ints = pd.read_parquet(INTERVENTIONS)
     self.twins = interventions.n2_twins(self.ints, self.test)
 
   def load(self, cfg: config.RunConfig, n_examples: int | None = None) -> pd.DataFrame:
@@ -112,7 +113,7 @@ def paired(name: str, a: np.ndarray, b: np.ndarray, point_a: float, point_b: flo
 def write(df: pd.DataFrame, path: pathlib.Path) -> None:
   path.parent.mkdir(parents=True, exist_ok=True)
   df.to_csv(path, index=False, float_format="%.4f")
-  print("wrote", path.relative_to(ROOT))
+  print("wrote", path.relative_to(ROOT) if path.is_relative_to(ROOT) else path)
 
 
 def universe(n: int) -> bootstrap.ClusterBootstrap:
