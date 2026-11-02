@@ -21,6 +21,7 @@ dependencies = [
   "pyyaml>=6",
   # Tokenizers and chat templates only; torch is installed on the GPU instance via vLLM.
   "transformers>=4.51",
+  "matplotlib>=3.9",
 ]
 
 [project.optional-dependencies]
@@ -28,6 +29,11 @@ dependencies = [
 interventions = [
   "spacy>=3.8,<3.9",
   "en-core-web-lg @ https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.8.0/en_core_web_lg-3.8.0-py3-none-any.whl",
+]
+# Model inference on CPU with Hugging Face transformers (the pilot, pilot/).
+cpu = [
+  "torch>=2.6",
+  "accelerate>=1.0",
 ]
 # Model inference (EC2 / GPU only).
 gpu = [
@@ -56,4 +62,5 @@ markers = [
   "nlp: needs spaCy en_core_web_lg and the WordNet corpus",
   "upstream: compares against the upstream corr_faith code in third_party/",
   "hf: needs the pinned tokenizers in data/hf (scripts/fetch_tokenizers.py)",
+  "weights: needs torch and model weights in data/hf (slow)",
 ]

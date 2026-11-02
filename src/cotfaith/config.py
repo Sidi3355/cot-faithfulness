@@ -38,6 +38,7 @@ class Decoding(_Strict):
   top_k: int = -1
   min_p: float = 0.0
   n: int = 1
+  repetition_penalty: float = 1.0
 
   @model_validator(mode="after")
   def _check(self):
@@ -84,6 +85,13 @@ class RunConfig(_Strict):
   seed: int = 0
   max_new_tokens: int = 500
   vllm: Vllm = Vllm()
+  engine: Literal["vllm", "hf_cpu"] = "vllm"
+  # Thinking tokens after which a trace counts as unfinished ("uncapped" budget).
+  thinking_cap: int = budget.UNCAPPED_LIMIT
+  # CPU pilot (pilot/): runs on the first n_examples test examples; may use
+  # K = 3 and a lower thinking cap. Pilot runs are never part of the main study.
+  pilot: bool = False
+  n_examples: int | None = None
   # Smoke runs are for debugging only and are never reported.
   smoke: bool = False
 
@@ -96,6 +104,14 @@ class RunConfig(_Strict):
     info = models.get(self.model)  # Raises for models outside the study.
     if info.role == "judge":
       raise ValueError("the naturalness judge is not a subject model")
+    if info.role == "pilot" and not self.pilot:
+      raise ValueError(f"{self.model} is only used in the pilot")
+    if self.pilot != (self.n_examples is not None):
+      raise ValueError("pilot runs set n_examples; main-study runs use every example")
+    if not self.pilot and self.thinking_cap != budget.UNCAPPED_LIMIT:
+      raise ValueError(f"main-study runs use a thinking cap of {budget.UNCAPPED_LIMIT}")
+    if not 0 < self.thinking_cap <= budget.UNCAPPED_LIMIT:
+      raise ValueError(f"thinking_cap must lie in (0, {budget.UNCAPPED_LIMIT}]")
     prompts.include_explanations_in_fewshot(self.template, self.demos)  # Raises if invalid.
     if self.template is prompts.Template.PREDICT_ONLY and self.length != "empty":
       raise ValueError("length instructions need a template with an explanation")
@@ -105,8 +121,8 @@ class RunConfig(_Strict):
       raise ValueError("thinking runs request no explanation (predict-only template)")
     if self.thinking != bool(self.budgets):
       raise ValueError("budgets are required with thinking and not allowed without it")
-    if any(b <= 0 or b >= budget.UNCAPPED_LIMIT for b in self.budgets):
-      raise ValueError(f"budgets must lie in (0, {budget.UNCAPPED_LIMIT})")
+    if any(b <= 0 or b >= self.thinking_cap for b in self.budgets):
+      raise ValueError(f"budgets must lie in (0, thinking_cap = {self.thinking_cap})")
     if not self.smoke and self.model_revision != info.revision:
       raise ValueError(f"reported runs need the pinned revision {info.revision}")
     if not self.smoke and not _SHA256.fullmatch(self.interventions_sha256):
@@ -114,15 +130,21 @@ class RunConfig(_Strict):
     if self.phase in ("phase1", "phase1b"):
       if self.decoding.mode != "greedy" or self.thinking:
         raise ValueError("phase 1 runs are greedy with thinking off")
+      if self.decoding.repetition_penalty != info.default_repetition_penalty:
+        raise ValueError(
+            "phase 1 follows the paper's code, which applied the model's default repetition"
+            f" penalty ({info.default_repetition_penalty} for {self.model})"
+        )
     else:
-      if self.decoding != SAMPLED:
-        raise ValueError("phases 2-3 use the shared sampling settings (config.SAMPLED)")
+      allowed_n = (3, SAMPLED.n) if self.pilot else (SAMPLED.n,)
+      if self.decoding.model_copy(update={"n": SAMPLED.n}) != SAMPLED or self.decoding.n not in allowed_n:
+        raise ValueError("phases 2-3 use the shared sampling settings (config.SAMPLED; pilot: n = 3)")
       if not self.is_qwen3:
         raise ValueError("phases 2-3 use the Qwen3 models")
     if self.phase == "phase2" and not self.thinking:
       raise ValueError("phase 2 runs have thinking on")
-    if self.thinking and self.max_new_tokens < budget.UNCAPPED_LIMIT:
-      raise ValueError(f"thinking runs need max_new_tokens >= {budget.UNCAPPED_LIMIT}")
+    if self.thinking and self.max_new_tokens < self.thinking_cap:
+      raise ValueError(f"thinking runs need max_new_tokens >= thinking_cap ({self.thinking_cap})")
     return self
 
   @property

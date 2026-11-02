@@ -36,6 +36,9 @@ def _ratio(num, den):
     return np.where(den > 0, num / np.where(den > 0, den, 1), np.nan)
 
 
+ratio = _ratio  # Public: NaN where the denominator is 0.
+
+
 def tpr(counts):
   """P(E=1 | I=1). This is the counterfactual test (CT) score."""
   a, _, c, _ = _split(counts)

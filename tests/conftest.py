@@ -30,12 +30,24 @@ def _have_tokenizers() -> bool:
   )
 
 
+def _have_weights() -> bool:
+  try:
+    import torch  # noqa: F401
+  except ImportError:
+    return False
+  return all(
+      list((upstream.DATA_DIR / "hf").glob(f"models--{name.replace('/', '--')}/snapshots/*/*.safetensors"))
+      for name in ("Qwen/Qwen2.5-0.5B-Instruct", "Qwen/Qwen3-0.6B")
+  )
+
+
 def pytest_collection_modifyitems(config, items):
   checks = {
       "data": (_have_data(), "datasets missing: run scripts/fetch_data.sh"),
       "nlp": (_have_nlp(), "spaCy en_core_web_lg or WordNet missing"),
       "upstream": (upstream.available(), "third_party/corr_faith submodule missing"),
       "hf": (_have_tokenizers(), "tokenizers missing: run scripts/fetch_tokenizers.py"),
+      "weights": (_have_weights(), "torch or the small model weights missing"),
   }
   for item in items:
     for marker, (ok, reason) in checks.items():

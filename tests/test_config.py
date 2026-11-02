@@ -35,7 +35,10 @@ def test_valid_configs():
   config.RunConfig(**BASE)
   config.RunConfig(**THINKING)
   anchor = models.get("Qwen/Qwen2.5-7B-Instruct")
-  config.RunConfig(**dict(BASE, model=anchor.name, model_revision=anchor.revision))
+  config.RunConfig(**dict(
+      BASE, model=anchor.name, model_revision=anchor.revision,
+      decoding={"mode": "greedy", "repetition_penalty": anchor.default_repetition_penalty},
+  ))
   config.RunConfig(**dict(  # Phase 3 cell R.
       BASE, phase="phase3", template="po", demos="labels_only", decoding=config.SAMPLED.model_dump()
   ))
@@ -89,3 +92,37 @@ def test_dump_round_trip(tmp_path):
   path = tmp_path / "c.yaml"
   path.write_text(config.dump(cfg))
   assert config.load(path) == cfg
+
+
+def test_phase1_uses_the_models_default_repetition_penalty():
+  anchor = models.get("Qwen/Qwen2.5-7B-Instruct")
+  with pytest.raises(pydantic.ValidationError):  # Default 1.0 is not the model's 1.05.
+    config.RunConfig(**dict(BASE, model=anchor.name, model_revision=anchor.revision))
+
+
+PILOT_R = dict(
+    BASE, model="Qwen/Qwen2.5-0.5B-Instruct", model_revision=models.get("Qwen/Qwen2.5-0.5B-Instruct").revision,
+    decoding={"mode": "greedy", "repetition_penalty": 1.1}, engine="hf_cpu", pilot=True, n_examples=100,
+)
+PILOT_C2 = dict(
+    THINKING, model="Qwen/Qwen3-0.6B", model_revision=models.get("Qwen/Qwen3-0.6B").revision,
+    decoding=dict(config.SAMPLED.model_dump(), n=3), engine="hf_cpu", pilot=True, n_examples=40,
+    thinking_cap=4096, max_new_tokens=4160,
+)
+
+
+def test_pilot_configs():
+  config.RunConfig(**PILOT_R)
+  config.RunConfig(**PILOT_C2)
+
+
+@pytest.mark.parametrize("base,changes", [
+    (PILOT_R, dict(pilot=False, n_examples=None)),  # Pilot-only model in a main-study run.
+    (PILOT_R, dict(n_examples=None)),
+    (PILOT_C2, dict(decoding=dict(config.SAMPLED.model_dump(), n=2))),
+    (PILOT_C2, dict(budgets=[128, 4096])),  # Budget at the cap.
+    (PILOT_C2, dict(pilot=False, n_examples=None)),  # K = 3 and cap 4096 outside the pilot.
+])
+def test_invalid_pilot_configs(base, changes):
+  with pytest.raises(pydantic.ValidationError):
+    config.RunConfig(**dict(base, **changes))

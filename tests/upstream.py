@@ -73,3 +73,28 @@ def module(name: str) -> types.ModuleType:
   """Imports `corr_faith.<name>` with stand-ins for the heavy dependencies."""
   _install_stubs()
   return importlib.import_module(f"corr_faith.{name}")
+
+
+class V4ChatTemplate:
+  """Tokenizer proxy giving upstream the transformers-4 behaviour it was written
+  for: apply_chat_template(..., return_tensors="pt") returns the id tensor (v5
+  returns a dict unless return_dict=False). Everything else is delegated."""
+
+  def __init__(self, tokenizer):
+    self._tokenizer = tokenizer
+
+  def apply_chat_template(self, *args, **kwargs):
+    kwargs.setdefault("return_dict", False)
+    return self._tokenizer.apply_chat_template(*args, **kwargs)
+
+  def __call__(self, *args, **kwargs):  # Special methods bypass __getattr__.
+    return self._tokenizer(*args, **kwargs)
+
+  def __getattr__(self, name):
+    return getattr(self._tokenizer, name)
+
+
+def pipeline_for(model, tokenizer):
+  """The parts of a transformers text-generation pipeline that upstream uses."""
+  import torch
+  return types.SimpleNamespace(model=model, tokenizer=V4ChatTemplate(tokenizer), device=torch.device("cpu"))

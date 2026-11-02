@@ -287,6 +287,15 @@ All conditions use the same filtered intervention file, the same demos per examp
 - Note for the runner: vLLM applies each model's `generation_config.json` sampling defaults (Qwen3:
   T 0.6, top-p 0.95, top-k 20) unless they're overridden. So every run sets all sampling
   parameters explicitly, including temperature 0 for the greedy Phase 1 runs.
+- **Repetition penalty (found while building the CPU pilot):**
+  - Qwen2.5's `generation_config.json` sets `repetition_penalty` to 1.1 (0.5B, 1.5B) or 1.05 (3B,
+    7B, 32B). The paper's code calls greedy `generate` without overriding it, so its answers and
+    label probabilities include that penalty.
+  - Phase 1 runs therefore use each model's default penalty (enforced in the config; Qwen3 has
+    none). Phases 2–3 use 1.0.
+- **Transformers 5:** `apply_chat_template(return_tensors="pt")` returns a dict rather than a tensor,
+  which breaks the paper's code. Phase 1b runs it either with transformers 4.x, or with the
+  one-line shim in `tests/upstream.py`, which restores the v4 return type.
 - Needs the GPU:
   - the vLLM runner;
   - judge scoring and freezing the intervention file;

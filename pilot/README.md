@@ -1,5 +1,42 @@
 # Pilot
 
+**The pilot that is being run is option A, described in [PILOT_PLAN.pdf](PILOT_PLAN.pdf).** It has
+two arms: a small-scale replication on Qwen2.5 0.5B, 1.5B and 3B, and the chain-of-thought pilot on
+Qwen3-0.6B. Results (tables, statistics and figures only) go to [`results/`](results/).
+
+How it runs:
+
+```bash
+.venv/bin/python pilot/scripts/judge.py --n-examples 200
+```
+
+```bash
+.venv/bin/python pilot/scripts/make_configs.py --r-examples 20
+```
+
+```bash
+.venv/bin/python pilot/scripts/run_pilot.py pilot/configs/R_*_empty.yaml
+```
+
+```bash
+.venv/bin/python pilot/scripts/analyze.py prepilot
+```
+
+The pre-pilot fixes N. Then regenerate the configs with `--r-examples N`, run every config in
+`pilot/configs/`, and analyse:
+
+```bash
+.venv/bin/python pilot/scripts/analyze.py r
+```
+
+```bash
+.venv/bin/python pilot/scripts/analyze.py c
+```
+
+The rest of this page is the background comparison of options that led to that choice.
+
+---
+
 A smaller version of the experiment in [PLAN.md](../PLAN.md), runnable before the EC2 instance
 exists. The **design stays the same**: prompts, interventions, controls, decoding, metrics,
 statistics and figures. Only the **scale** shrinks: models, datasets, examples and samples.

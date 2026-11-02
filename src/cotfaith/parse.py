@@ -51,6 +51,9 @@ class Answer:
   label: str | None
   explanation: str | None
   error: str | None
+  # Character offset in `text` where the label group starts (upstream reads the
+  # label probabilities at the token containing it).
+  label_start: int | None = None
 
 
 def parse_answer(spec: DatasetSpec, template: Template, text: str) -> Answer:
@@ -61,7 +64,7 @@ def parse_answer(spec: DatasetSpec, template: Template, text: str) -> Answer:
   explanation = None if template is Template.PREDICT_ONLY else match.group("explanation")
   if label not in spec.class_labels:
     return Answer(None, explanation, "unknown_label")
-  return Answer(label, explanation, None)
+  return Answer(label, explanation, None, match.start("pred_label"))
 
 
 @dataclasses.dataclass(frozen=True)
