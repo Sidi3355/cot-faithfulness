@@ -105,7 +105,9 @@ class HFEngine:
     p = min(common_prefix_len(prompts), min(len(x) for x in prompts) - 1)
     cache = DynamicCache()
     if p > 0:
-      self.model(torch.tensor([list(prompts[0][:p])]), past_key_values=cache, use_cache=True)
+      # The transformer body only: the prefix's output scores are never used.
+      body = getattr(self.model, "model", self.model)
+      body(torch.tensor([list(prompts[0][:p])]), past_key_values=cache, use_cache=True)
     return p, cache
 
   def _batch_inputs(self, prompts, p, cache, rows):
@@ -138,7 +140,7 @@ class HFEngine:
       position_ids = (mask.cumsum(-1) - 1).clamp(min=0)
       logits = self.model(
           ids[:, p:], attention_mask=mask, position_ids=position_ids[:, p:],
-          past_key_values=batch_cache, use_cache=True,
+          past_key_values=batch_cache, use_cache=True, logits_to_keep=1,
       ).logits[:, -1, :].float()
       if processor is not None:
         logits = processor(ids, logits)
