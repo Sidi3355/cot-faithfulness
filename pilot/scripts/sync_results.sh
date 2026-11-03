@@ -11,5 +11,7 @@ if ! git diff --cached --quiet; then
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_018ARa1fsyMMbRFTkCJwUdTh"
-  git push -q origin "$(git rev-parse --abbrev-ref HEAD)"
+  branch="$(git rev-parse --abbrev-ref HEAD)"
+  # Retry once on a rejected push (e.g. a commit pushed from elsewhere meanwhile).
+  git push -q origin "$branch" || { git pull -q --rebase origin "$branch" && git push -q origin "$branch"; }
 fi
