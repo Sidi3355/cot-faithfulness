@@ -31,7 +31,7 @@ LENGTHS = ("very_concise", "concise", "empty", "comprehensive", "very_comprehens
 BUDGETS = ("128", "256", "512", "1024", "uncapped")
 R_MODELS = ("Qwen/Qwen2.5-0.5B-Instruct", "Qwen/Qwen2.5-1.5B-Instruct", "Qwen/Qwen2.5-3B-Instruct")
 CELL_METRICS = ("accuracy", "flip_rate", "mention_rate", "tpr_ct", "fpr", "phi_cct", "cct")
-N_CANDIDATES = (50, 100, 150, 200)
+N_CANDIDATES = (50, 100, 150)  # 167 examples were judged (see pilot/results/interventions_meta.json).
 TARGET_HALF_WIDTH = 0.05
 
 

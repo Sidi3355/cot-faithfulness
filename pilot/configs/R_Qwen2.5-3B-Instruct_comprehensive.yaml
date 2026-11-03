@@ -1,0 +1,36 @@
+experiment_id: R_Qwen2.5-3B-Instruct_comprehensive
+phase: phase1
+model: Qwen/Qwen2.5-3B-Instruct
+model_revision: aa8e72537993ba99e69dfaafa59ed015b17504d1
+dataset: comve
+template: pe
+demos: with_explanations
+length: comprehensive
+thinking: false
+budgets: []
+decoding:
+  mode: greedy
+  temperature: 0.0
+  top_p: 1.0
+  top_k: -1
+  min_p: 0.0
+  n: 1
+  repetition_penalty: 1.05
+interventions_path: data/pilot/natural_comve.parquet
+interventions_sha256: 8be3e524bfd83612f3ba1ac7bf291e5b15f90bb2a274d84d9c779b9c2ec9c06e
+controls:
+  n1: true
+  n2: false
+seed: 0
+max_new_tokens: 500
+vllm:
+  dtype: bfloat16
+  batch_invariant: true
+  max_model_len: 16384
+  gpu_memory_utilization: 0.9
+engine: hf_cpu
+dtype: float32
+thinking_cap: 8192
+pilot: true
+n_examples: 20
+smoke: false

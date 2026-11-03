@@ -86,6 +86,9 @@ class RunConfig(_Strict):
   max_new_tokens: int = 500
   vllm: Vllm = Vllm()
   engine: Literal["vllm", "hf_cpu"] = "vllm"
+  # Number format for hf_cpu runs (vLLM uses vllm.dtype). The CPU pilot uses
+  # float32: fast on CPUs without bf16 hardware and identical across hosts.
+  dtype: Literal["bfloat16", "float32"] = "bfloat16"
   # Thinking tokens after which a trace counts as unfinished ("uncapped" budget).
   thinking_cap: int = budget.UNCAPPED_LIMIT
   # CPU pilot (pilot/): runs on the first n_examples test examples; may use

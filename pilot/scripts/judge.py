@@ -14,13 +14,15 @@ Outputs:
 
 import argparse
 import hashlib
+import json
 import os
 import pathlib
 import time
 
 import pandas as pd
+import torch
 
-from cotfaith import datasets, interventions
+from cotfaith import datasets, interventions, models
 from cotfaith.hf_engine import HFEngine
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -47,6 +49,8 @@ def main() -> None:
   parser = argparse.ArgumentParser()
   parser.add_argument("--n-examples", type=int, default=200)
   parser.add_argument("--threads", type=int, default=4)
+  # The 167 examples scored so far used bfloat16; keep one format for all.
+  parser.add_argument("--dtype", default="bfloat16", choices=["bfloat16", "float32"])
   args = parser.parse_args()
   data_dir = ROOT / "data"
   judge_dir = data_dir / "pilot" / "judge"
@@ -55,12 +59,13 @@ def main() -> None:
   test = datasets.load_splits("comve", str(data_dir))["test"]
   order = test.sample(frac=1, random_state=0).iloc[: args.n_examples]
   cands = pd.read_parquet(data_dir / "interventions" / "candidates_comve.parquet")
-  engine = HFEngine(JUDGE, threads=args.threads)
+  engine = None
   for data_idx, test_row in order.iterrows():
     path = judge_dir / f"{data_idx}.parquet"
     ex = cands[cands["data_idx"] == data_idx]
     if path.exists() or ex.empty:
       continue
+    engine = engine or HFEngine(JUDGE, threads=args.threads, dtype=getattr(torch, args.dtype))
     start = time.time()
     scored = score_example(engine, ex, test_row)
     scored.to_parquet(path.with_suffix(".tmp"))
@@ -78,6 +83,13 @@ def main() -> None:
   review.parent.mkdir(parents=True, exist_ok=True)
   natural[["data_idx", "intervention_idx", "modified_sentence_key", "inserted_word", "inserted_position",
            "sent0", "sent1", "intervention_naturalness_yes_prob"]].to_csv(review, index=False)
+  meta = dict(
+      judge=JUDGE, judge_revision=models.get(JUDGE).revision, judge_dtype=args.dtype,
+      n_examples_judged=int(assessed["data_idx"].nunique()), n_candidates=len(assessed),
+      keep_top_frac=interventions.KEEP_TOP_FRAC, n_interventions=len(natural),
+      n_examples_with_interventions=int(natural["data_idx"].nunique()), sha256=digest,
+  )
+  (review.parent / "interventions_meta.json").write_text(json.dumps(meta, indent=2) + "\n")
   print(f"{len(natural)} interventions from {natural['data_idx'].nunique()} examples; sha256 {digest}")
 
 

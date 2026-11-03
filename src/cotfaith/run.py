@@ -22,6 +22,7 @@ from collections.abc import Callable
 
 import numpy as np
 import pandas as pd
+import torch
 
 from cotfaith import budget, config as config_lib, datasets, interventions, parse, prompts, tokens
 from cotfaith.hf_engine import HFEngine, Output, Sampling, label_token_index
@@ -89,7 +90,7 @@ class Runner:
     self.twins = interventions.n2_twins(self.ints, self.test)
     self.out_dir = cfg.results_dir(results_root)
     (self.out_dir / "rows").mkdir(parents=True, exist_ok=True)
-    self.engine = HFEngine(cfg.model, threads=threads, **({} if dtype is None else {"dtype": dtype}))
+    self.engine = HFEngine(cfg.model, threads=threads, dtype=dtype or getattr(torch, cfg.dtype))
     self.tok = self.engine.tokenizer
     self.label_tokens = {
         t: self.spec.class_labels.index(l)
@@ -111,7 +112,7 @@ class Runner:
     meta.setdefault("started", time.strftime("%Y-%m-%dT%H:%M:%S"))
     meta.update(
         git_commit=subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip(),
-        engine="hf_cpu", dtype="bfloat16",
+        engine="hf_cpu", dtype=str(self.engine.model.dtype).replace("torch.", ""),
         versions={p: importlib.metadata.version(p) for p in ("torch", "transformers", "numpy", "pandas")},
         model_revision=self.engine.info.revision,
         interventions_sha256=sha256(self.cfg.interventions_path),

@@ -26,7 +26,7 @@ def _base(model: str, n_examples: int, **kw) -> dict:
       model=model, model_revision=info.revision, dataset="comve",
       interventions_path=str(INTERVENTIONS.relative_to(ROOT) if INTERVENTIONS.is_relative_to(ROOT) else INTERVENTIONS),
       interventions_sha256=INTERVENTIONS.with_suffix(".sha256").read_text().strip(),
-      engine="hf_cpu", pilot=True, n_examples=n_examples, **kw,
+      engine="hf_cpu", dtype="float32", pilot=True, n_examples=n_examples, **kw,
   )
 
 
