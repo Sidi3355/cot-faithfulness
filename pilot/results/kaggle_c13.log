@@ -1,0 +1,23 @@
+== C1_ep_labels_only_comprehensive.yaml
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<04:32,  1.14it/s]Loading weights:  25%|██▍       | 77/311 [00:00<00:02, 106.25it/s]Loading weights:  62%|██████▏   | 192/311 [00:01<00:00, 275.87it/s]Loading weights:  85%|████████▌ | 265/311 [00:01<00:00, 292.85it/s]Loading weights: 100%|██████████| 311/311 [00:01<00:00, 218.22it/s]
+ep-labels_only-comprehensive-nothink-greedy1 example 1439: 24 rows in 39s
+ep-labels_only-comprehensive-nothink-greedy1 example 161: 24 rows in 10s
+ep-labels_only-comprehensive-nothink-greedy1 example 1770: 24 rows in 11s
+ep-labels_only-comprehensive-nothink-greedy1 example 1198: 24 rows in 13s
+ep-labels_only-comprehensive-nothink-greedy1 example 1818: 24 rows in 16s
+ep-labels_only-comprehensive-nothink-greedy1 example 1027: 24 rows in 71s
+ep-labels_only-comprehensive-nothink-greedy1 example 762: 24 rows in 4s
+ep-labels_only-comprehensive-nothink-greedy1 example 877: 24 rows in 94s
+ep-labels_only-comprehensive-nothink-greedy1 example 68: 24 rows in 75s
+ep-labels_only-comprehensive-nothink-greedy1 example 687: 24 rows in 12s
+ep-labels_only-comprehensive-nothink-greedy1 example 1344: 24 rows in 4s
+ep-labels_only-comprehensive-nothink-greedy1 example 583: 24 rows in 4s
+ep-labels_only-comprehensive-nothink-greedy1 example 968: 24 rows in 10s
+ep-labels_only-comprehensive-nothink-greedy1 example 1642: 24 rows in 70s
+ep-labels_only-comprehensive-nothink-greedy1 example 1993: 24 rows in 11s
+ep-labels_only-comprehensive-nothink-greedy1 example 1956: 24 rows in 11s
+ep-labels_only-comprehensive-nothink-greedy1 example 812: 24 rows in 43s
+ep-labels_only-comprehensive-nothink-greedy1 example 746: 24 rows in 11s
+ep-labels_only-comprehensive-nothink-greedy1 example 607: 24 rows in 40s
+ep-labels_only-comprehensive-nothink-greedy1 example 1531: 24 rows in 32s

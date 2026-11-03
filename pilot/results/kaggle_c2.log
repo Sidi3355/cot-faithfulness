@@ -1,0 +1,9 @@
+== C2_thinking.yaml
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<04:54,  1.05it/s]Loading weights:  18%|█▊        | 57/311 [00:01<00:03, 74.18it/s]Loading weights:  65%|██████▍   | 202/311 [00:01<00:00, 289.78it/s]Loading weights:  92%|█████████▏| 285/311 [00:01<00:00, 305.35it/s]Loading weights: 100%|██████████| 311/311 [00:01<00:00, 209.46it/s]
+  example 1439: traces for 3/24 items
+  example 1439: traces for 6/24 items
+  example 1439: traces for 9/24 items
+  example 1439: traces for 12/24 items
+  example 1439: traces for 15/24 items
+  example 1439: traces for 18/24 items
