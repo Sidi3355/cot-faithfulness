@@ -17,3 +17,9 @@ po-labels_only-empty-think-sample3 example 1439: 360 rows in 807s
   example 161: traces for 15/24 items
   example 161: traces for 18/24 items
   example 161: traces for 21/24 items
+  example 161: traces for 24/24 items
+po-labels_only-empty-think-sample3 example 161: 360 rows in 1142s
+  example 1770: traces for 3/24 items
+  example 1770: traces for 6/24 items
+  example 1770: traces for 9/24 items
+  example 1770: traces for 12/24 items
