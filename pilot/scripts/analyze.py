@@ -22,7 +22,7 @@ from cotfaith import analysis, bootstrap, config, datasets, flips, interventions
 from cotfaith import rows as rows_lib  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-RAW = ROOT / "pilot" / "results" / "raw"
+RAW = ROOT / "data" / "pilot" / "raw"  # Live runner output (synced to pilot/results/raw).
 OUT = ROOT / "pilot" / "results"
 CONFIGS = ROOT / "pilot" / "configs"
 INTERVENTIONS = ROOT / "data" / "pilot" / "natural_comve.parquet"
