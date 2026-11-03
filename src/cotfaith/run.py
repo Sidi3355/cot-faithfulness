@@ -14,8 +14,10 @@ import dataclasses
 import hashlib
 import importlib.metadata
 import json
+import math
 import os
 import pathlib
+import pickle
 import subprocess
 import time
 from collections.abc import Callable
@@ -28,6 +30,8 @@ from cotfaith import budget, config as config_lib, datasets, interventions, pars
 from cotfaith.hf_engine import HFEngine, Output, Sampling, label_token_index
 
 FORCED_ANSWER_TOKENS = 64
+# Forced answers per generate call (and per checkpoint) in thinking runs.
+FORCED_CHUNK = 8
 ROW_TYPES = ("base", "n1", "real", "n2")
 
 
@@ -140,6 +144,7 @@ class Runner:
       tmp = self._row_path(data_idx).with_suffix(".tmp")
       frame.to_parquet(tmp)
       os.replace(tmp, self._row_path(data_idx))
+      self._partial_path(data_idx).unlink(missing_ok=True)
       secs = time.time() - start
       with open(self.out_dir / "timing.csv", "a") as f:
         f.write(f"{data_idx},{len(frame)},{secs:.1f}\n")
@@ -159,23 +164,22 @@ class Runner:
         for it in items
     ]
     seed = self.cfg.seed * 100_003 + int(data_idx)
-    chunk = 256 if self.cfg.thinking else 64
+    common = dict(example_id=int(data_idx), gold_label=self.spec.true_label(test_row))
+    if self.cfg.thinking:
+      return self._thinking_example(data_idx, items, prompt_ids, common, seed)
     outs = self.engine.generate(
         prompt_ids, n=self.cfg.decoding.n, sampling=self.sampling, max_new_tokens=self.cfg.max_new_tokens,
         label_tokens=self.label_tokens, n_labels=len(self.spec.class_labels), seed=seed,
-        batch_size=self.batch_size, chunk=chunk,
+        batch_size=self.batch_size, chunk=64,
     )
-    common = dict(example_id=int(data_idx), gold_label=self.spec.true_label(test_row))
-    if not self.cfg.thinking:
-      rows = []
-      for it, p_ids, samples in zip(items, prompt_ids, outs):
-        for s, o in enumerate(samples):
-          rows.append(dict(common, **self._item_fields(it), sample_idx=s, budget="none",
-                           n_prompt_tokens=len(p_ids), **self._answer_fields(o.token_ids, o, 0), forced=False,
-                           finished=o.finished, n_new_tokens=len(o.token_ids), trace=None,
-                           trace_n_tokens=None, terminated=None))
-      return rows
-    return self._thinking_rows(items, prompt_ids, outs, common, seed)
+    rows = []
+    for it, p_ids, samples in zip(items, prompt_ids, outs):
+      for s, o in enumerate(samples):
+        rows.append(dict(common, **self._item_fields(it), sample_idx=s, budget="none",
+                         n_prompt_tokens=len(p_ids), **self._answer_fields(o.token_ids, o, 0), forced=False,
+                         finished=o.finished, n_new_tokens=len(o.token_ids), trace=None,
+                         trace_n_tokens=None, terminated=None))
+    return rows
 
   # Output parsing ------------------------------------------------------------
 
@@ -201,9 +205,38 @@ class Runner:
 
   # Thinking budgets ----------------------------------------------------------
 
-  def _thinking_rows(self, items, prompt_ids, outs, common, seed) -> list[dict]:
-    cap = self.cfg.thinking_cap
+  def _partial_path(self, data_idx) -> pathlib.Path:
+    return self.out_dir / "rows" / f"{data_idx}.partial.pkl"
+
+  def _thinking_example(self, data_idx, items, prompt_ids, common, seed) -> list[dict]:
+    """Thinking runs take long per example, so progress is checkpointed after
+    every group of traces and every chunk of forced answers. Seeds depend only on
+    the group or chunk index, so a resumed example samples as an uninterrupted one."""
+    n, cap = self.cfg.decoding.n, self.cfg.thinking_cap
     budgets = [*self.cfg.budgets, cap]
+    path = self._partial_path(data_idx)
+    state = pickle.loads(path.read_bytes()) if path.exists() else {"outs": {}, "forced": {}}
+
+    def save():
+      tmp = path.with_suffix(".pkltmp")
+      tmp.write_bytes(pickle.dumps(state))
+      os.replace(tmp, path)
+
+    gen = dict(sampling=self.sampling, label_tokens=self.label_tokens, n_labels=len(self.spec.class_labels))
+    per_call = max(1, math.ceil(self.batch_size / n))
+    for g, start in enumerate(range(0, len(items), per_call)):
+      group = list(range(start, min(start + per_call, len(items))))
+      if all((i, 0) in state["outs"] for i in group):
+        continue
+      res = self.engine.generate([prompt_ids[i] for i in group], n=n, max_new_tokens=self.cfg.max_new_tokens,
+                                 seed=seed + 1000 * g, batch_size=len(group) * n, chunk=256, **gen)
+      for i, samples in zip(group, res):
+        for s, o in enumerate(samples):
+          state["outs"][i, s] = o
+      save()
+      self.log(f"  example {data_idx}: traces for {min(start + per_call, len(items))}/{len(items)} items")
+    outs = [[state["outs"][i, s] for s in range(n)] for i in range(len(items))]
+
     plans, forced_prompts, forced_keys = {}, [], []
     for i, samples in enumerate(outs):
       for s, o in enumerate(samples):
@@ -214,14 +247,22 @@ class Runner:
             keep = min(b, span.n_tokens)
             forced_prompts.append(list(prompt_ids[i]) + o.token_ids[: span.start + keep] + self.early_exit_ids)
             forced_keys.append((i, s, b))
-    forced = {}
-    if forced_prompts:
-      res = self.engine.generate(
-          forced_prompts, n=1, sampling=self.sampling, max_new_tokens=FORCED_ANSWER_TOKENS,
-          label_tokens=self.label_tokens, n_labels=len(self.spec.class_labels), seed=seed + 7,
-          batch_size=self.batch_size, chunk=FORCED_ANSWER_TOKENS,
-      )
-      forced = {key: r[0] for key, r in zip(forced_keys, res)}
+    for c, start in enumerate(range(0, len(forced_prompts), FORCED_CHUNK)):
+      keys = forced_keys[start:start + FORCED_CHUNK]
+      if all(k in state["forced"] for k in keys):
+        continue
+      res = self.engine.generate(forced_prompts[start:start + FORCED_CHUNK], n=1,
+                                 max_new_tokens=FORCED_ANSWER_TOKENS, seed=seed + 7 + 1000 * c,
+                                 batch_size=FORCED_CHUNK, chunk=FORCED_ANSWER_TOKENS, **gen)
+      for k, r in zip(keys, res):
+        state["forced"][k] = r[0]
+      save()
+    forced = state["forced"]
+    return self._thinking_rows(items, prompt_ids, outs, plans, forced, common)
+
+  def _thinking_rows(self, items, prompt_ids, outs, plans, forced, common) -> list[dict]:
+    cap = self.cfg.thinking_cap
+    budgets = [*self.cfg.budgets, cap]
     rows = []
     for i, samples in enumerate(outs):
       for s, o in enumerate(samples):

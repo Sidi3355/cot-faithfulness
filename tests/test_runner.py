@@ -99,3 +99,37 @@ def test_thinking_rows_and_resume(smoke_interventions, tmp_path):
   logs.clear()
   run.Runner(cfg, str(upstream.DATA_DIR), str(tmp_path), log=logs.append).run()
   assert logs == []
+
+
+def test_interrupted_thinking_example_resumes_identically(smoke_interventions, tmp_path, monkeypatch):
+  path, _ = smoke_interventions
+  cfg = _cfg(
+      path, phase="phase2", model=C_MODEL, model_revision=models.get(C_MODEL).revision, template="po",
+      demos="labels_only", thinking=True, budgets=[16], thinking_cap=32, max_new_tokens=96,
+      decoding=dict(config.SAMPLED.model_dump(), n=3), controls={"n1": False, "n2": False},
+  )
+  full = run.Runner(cfg, str(upstream.DATA_DIR), str(tmp_path / "a"), dtype=torch.float32,
+                    batch_size=4, log=lambda m: None)
+  full.run()
+  expected = run.load_rows(cfg.results_dir(tmp_path / "a"))
+
+  runner = run.Runner(cfg, str(upstream.DATA_DIR), str(tmp_path / "b"), dtype=torch.float32,
+                      batch_size=4, log=lambda m: None)
+  real_generate, calls = runner.engine.generate, []
+
+  def flaky(*args, **kwargs):  # Dies on the second call, after one checkpoint.
+    calls.append(1)
+    if len(calls) == 2:
+      raise RuntimeError("simulated restart")
+    return real_generate(*args, **kwargs)
+
+  monkeypatch.setattr(runner.engine, "generate", flaky)
+  with pytest.raises(RuntimeError):
+    runner.run()
+  assert list((cfg.results_dir(tmp_path / "b") / "rows").glob("*.partial.pkl"))
+  monkeypatch.setattr(runner.engine, "generate", real_generate)
+  runner.run()
+  resumed = run.load_rows(cfg.results_dir(tmp_path / "b"))
+  assert not list((cfg.results_dir(tmp_path / "b") / "rows").glob("*.partial.pkl"))
+  cols = ["item", "sample_idx", "budget", "trace", "answer_text", "label"]
+  pd.testing.assert_frame_equal(expected[cols], resumed[cols])
