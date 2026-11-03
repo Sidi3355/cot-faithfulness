@@ -25,8 +25,11 @@ def main() -> None:
     cfg = config.load(path)
     start = time.time()
     print(f"== {pathlib.Path(path).name}", flush=True)
-    # 3B in float32 is ~12.4 GB of weights on a 15 GB machine: smaller batches.
-    batch_size = args.batch_size if models.get(cfg.model).params < 3e9 else min(args.batch_size, 8)
+    # Memory on a 15 GB machine in float32: 3B weights are ~12.4 GB, and a thinking
+    # row's KV cache can reach ~4,700 tokens x 230 KB (Qwen3-0.6B) = ~1 GB.
+    batch_size = args.batch_size
+    if models.get(cfg.model).params >= 3e9 or cfg.thinking:
+      batch_size = min(batch_size, 8)
     runner = run.Runner(cfg, str(ROOT / "data"), str(RESULTS), threads=args.threads,
                         batch_size=batch_size, log=lambda m: print(m, flush=True))
     runner.run()
