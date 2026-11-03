@@ -40,3 +40,69 @@ ep-labels_only-comprehensive-nothink-greedy1 example 1579: 24 rows in 27s
 ep-labels_only-comprehensive-nothink-greedy1 example 108: 24 rows in 78s
 ep-labels_only-comprehensive-nothink-greedy1 example 1760: 24 rows in 13s
 ep-labels_only-comprehensive-nothink-greedy1 example 552: 24 rows in 3s
+ep-labels_only-comprehensive-nothink-greedy1 example 506: 24 rows in 34s
+== done C1_ep_labels_only_comprehensive.yaml in 20.0 min
+== C1_ep_labels_only_concise.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<03:17,  1.57it/s]Loading weights:  70%|███████   | 219/311 [00:00<00:00, 399.38it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 347.25it/s]
+ep-labels_only-concise-nothink-greedy1 example 1439: 24 rows in 4s
+ep-labels_only-concise-nothink-greedy1 example 161: 24 rows in 4s
+ep-labels_only-concise-nothink-greedy1 example 1770: 24 rows in 9s
+ep-labels_only-concise-nothink-greedy1 example 1198: 24 rows in 8s
+ep-labels_only-concise-nothink-greedy1 example 1818: 24 rows in 8s
+ep-labels_only-concise-nothink-greedy1 example 1027: 24 rows in 4s
+ep-labels_only-concise-nothink-greedy1 example 762: 24 rows in 6s
+ep-labels_only-concise-nothink-greedy1 example 877: 24 rows in 4s
+ep-labels_only-concise-nothink-greedy1 example 68: 24 rows in 4s
+ep-labels_only-concise-nothink-greedy1 example 687: 24 rows in 6s
+ep-labels_only-concise-nothink-greedy1 example 1344: 24 rows in 4s
+ep-labels_only-concise-nothink-greedy1 example 583: 24 rows in 4s
+ep-labels_only-concise-nothink-greedy1 example 968: 24 rows in 4s
+ep-labels_only-concise-nothink-greedy1 example 1642: 24 rows in 6s
+ep-labels_only-concise-nothink-greedy1 example 1993: 24 rows in 9s
+ep-labels_only-concise-nothink-greedy1 example 1956: 24 rows in 10s
+ep-labels_only-concise-nothink-greedy1 example 812: 24 rows in 27s
+ep-labels_only-concise-nothink-greedy1 example 746: 24 rows in 4s
+ep-labels_only-concise-nothink-greedy1 example 607: 24 rows in 27s
+ep-labels_only-concise-nothink-greedy1 example 1531: 24 rows in 27s
+ep-labels_only-concise-nothink-greedy1 example 1984: 24 rows in 7s
+ep-labels_only-concise-nothink-greedy1 example 926: 24 rows in 9s
+ep-labels_only-concise-nothink-greedy1 example 56: 24 rows in 4s
+ep-labels_only-concise-nothink-greedy1 example 1860: 24 rows in 4s
+ep-labels_only-concise-nothink-greedy1 example 216: 24 rows in 27s
+ep-labels_only-concise-nothink-greedy1 example 554: 24 rows in 8s
+ep-labels_only-concise-nothink-greedy1 example 28: 24 rows in 4s
+ep-labels_only-concise-nothink-greedy1 example 479: 24 rows in 6s
+ep-labels_only-concise-nothink-greedy1 example 697: 24 rows in 8s
+ep-labels_only-concise-nothink-greedy1 example 1513: 24 rows in 6s
+ep-labels_only-concise-nothink-greedy1 example 1185: 24 rows in 62s
+ep-labels_only-concise-nothink-greedy1 example 526: 24 rows in 4s
+ep-labels_only-concise-nothink-greedy1 example 646: 24 rows in 4s
+ep-labels_only-concise-nothink-greedy1 example 715: 24 rows in 4s
+ep-labels_only-concise-nothink-greedy1 example 1605: 24 rows in 7s
+ep-labels_only-concise-nothink-greedy1 example 1579: 24 rows in 3s
+ep-labels_only-concise-nothink-greedy1 example 108: 24 rows in 3s
+ep-labels_only-concise-nothink-greedy1 example 1760: 24 rows in 27s
+ep-labels_only-concise-nothink-greedy1 example 552: 24 rows in 3s
+ep-labels_only-concise-nothink-greedy1 example 506: 24 rows in 31s
+== done C1_ep_labels_only_concise.yaml in 6.9 min
+== C1_ep_labels_only_empty.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<02:54,  1.78it/s]Loading weights:  72%|███████▏  | 224/311 [00:00<00:00, 452.79it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 411.92it/s]
+ep-labels_only-empty-nothink-greedy1 example 1439: 24 rows in 4s
+ep-labels_only-empty-nothink-greedy1 example 161: 24 rows in 9s
+ep-labels_only-empty-nothink-greedy1 example 1770: 24 rows in 8s
+ep-labels_only-empty-nothink-greedy1 example 1198: 24 rows in 10s
+ep-labels_only-empty-nothink-greedy1 example 1818: 24 rows in 8s
+ep-labels_only-empty-nothink-greedy1 example 1027: 24 rows in 3s
+ep-labels_only-empty-nothink-greedy1 example 762: 24 rows in 3s
+ep-labels_only-empty-nothink-greedy1 example 877: 24 rows in 9s
+ep-labels_only-empty-nothink-greedy1 example 68: 24 rows in 3s
+ep-labels_only-empty-nothink-greedy1 example 687: 24 rows in 8s
+ep-labels_only-empty-nothink-greedy1 example 1344: 24 rows in 3s
+ep-labels_only-empty-nothink-greedy1 example 583: 24 rows in 3s
+ep-labels_only-empty-nothink-greedy1 example 968: 24 rows in 3s
+ep-labels_only-empty-nothink-greedy1 example 1642: 24 rows in 8s
+ep-labels_only-empty-nothink-greedy1 example 1993: 24 rows in 9s
+ep-labels_only-empty-nothink-greedy1 example 1956: 24 rows in 10s
+ep-labels_only-empty-nothink-greedy1 example 812: 24 rows in 8s
+ep-labels_only-empty-nothink-greedy1 example 746: 24 rows in 4s
+ep-labels_only-empty-nothink-greedy1 example 607: 24 rows in 27s
