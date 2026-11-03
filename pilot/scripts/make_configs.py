@@ -15,6 +15,8 @@ R_MODELS = ("Qwen/Qwen2.5-0.5B-Instruct", "Qwen/Qwen2.5-1.5B-Instruct", "Qwen/Qw
 C_MODEL = "Qwen/Qwen3-0.6B"
 C_EXAMPLES = 40
 LENGTHS = ("very_concise", "concise", "empty", "comprehensive", "very_comprehensive")
+# Arm R uses three of the five length instructions (decided after the pre-pilot).
+R_LENGTHS = ("very_concise", "empty", "very_comprehensive")
 BUDGETS = (128, 256, 512, 1024)
 THINKING_CAP = 4096
 K = 3
@@ -35,7 +37,7 @@ def configs(r_examples: int) -> dict[str, config.RunConfig]:
   sampled = dict(config.SAMPLED.model_dump(), n=K)
   for model in R_MODELS:
     rep = models.get(model).default_repetition_penalty
-    for length in LENGTHS:
+    for length in R_LENGTHS:
       name = f"R_{model.split('/')[1]}_{length}"
       out[name] = config.RunConfig(**_base(
           model, r_examples, experiment_id=name, phase="phase1", template="pe", demos="with_explanations",

@@ -91,7 +91,7 @@ def test_analysis_end_to_end(tmp_path, monkeypatch, splits):
   prepilot = pd.read_csv(out / "R" / "prepilot_sample_size.csv")
   assert prepilot["chosen_N"].iloc[0] in analyze.N_CANDIDATES
   cells = pd.read_csv(out / "R" / "cells.csv")
-  assert len(cells) == 15 and cells["phi_cct"].notna().all()
+  assert len(cells) == 9 and cells["phi_cct"].notna().all()  # 3 models x 3 lengths.
   assert (cells["phi_cct_lo"] <= cells["phi_cct"]).all() and (cells["phi_cct"] <= cells["phi_cct_hi"]).all()
   for f in ("f_auroc.csv", "F1_verbosity.csv", "F2_scale.csv", "F3_phi_vs_cct.csv", "paper_comparison.csv",
             "tpr_fpr_by_length.png", "metrics_by_size.png", "phi_vs_cct.png"):

@@ -105,9 +105,9 @@ story = [
         ["Item", "Setting"],
         ["Models", "Qwen2.5-0.5B-Instruct, Qwen2.5-1.5B-Instruct, Qwen2.5-3B-Instruct (all evaluated "
          "in the paper; 7B and larger don't fit in this machine's 15 GB RAM)."],
-        ["Conditions", "Predict-then-explain, demos with human explanations, each of the 5 length "
-         "instructions (very concise, concise, none, comprehensive, very comprehensive). 5 "
-         "conditions per model."],
+        ["Conditions", "Predict-then-explain, demos with human explanations, 3 of the paper's 5 length "
+         "instructions: very concise, none, very comprehensive (chosen after the pre-pilot to fit "
+         "the CPU). 3 conditions per model."],
         ["Decoding", "Greedy, max 500 new tokens (the paper's settings)."],
         ["Per example", "Base run + its 11 interventions. Also one rerun of the base prompt (N1) as "
          "a determinism check, which should give zero flips."],
@@ -129,7 +129,7 @@ story = [
          "phi-CCT, CT and F-AUROC per model; paired differences 1.5B-0.5B, 3B-1.5B, 3B-0.5B "
          "(Holm within each metric)."],
         ["F3", "phi-CCT tracks the original CCT (paper: R-squared about 0.92).",
-         "phi-CCT against CCT across the 15 model x length cells; R-squared."],
+         "phi-CCT against CCT across the 9 model x length cells; R-squared."],
     ], [10, 72, 88]),
     Spacer(1, 3),
     p("Comparison with the paper's reported values for these three models needs the paper "
@@ -181,7 +181,7 @@ story = [
         ["0", "Build the CPU runner; check it against the paper's code on the same prompts; tests", "-"],
         ["1", "Download weights for the 4 models; judge the examples; freeze interventions (done: 167 examples)", "done"],
         ["2", "Arm R pre-pilot (20 examples x 3 models) and the sample-size rule", "≈ 1"],
-        ["3", "Arm R main run (N examples x 3 models x 5 lengths)", "see note"],
+        ["3", "Arm R main run (150 examples x 3 models x 3 lengths)", "≈ 2.5 days"],
         ["4", "Arm C: C1 (20 conditions)", "≈ 5"],
         ["5", "Arm C: C2 thinking traces (about 2,900 traces)", "≈ 13"],
         ["6", "Arm C: C3 cells A and R", "≈ 4"],

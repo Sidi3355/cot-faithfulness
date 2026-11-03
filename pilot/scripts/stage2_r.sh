@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Arm R main run at the chosen N, for the lengths common to plans A and B:
-# no instruction first (all models), then the two extremes.
+# Arm R main run at the chosen N for the three lengths, no instruction first.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 PY=.venv/bin/python

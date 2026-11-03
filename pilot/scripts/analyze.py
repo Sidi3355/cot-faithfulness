@@ -28,6 +28,7 @@ CONFIGS = ROOT / "pilot" / "configs"
 INTERVENTIONS = ROOT / "data" / "pilot" / "natural_comve.parquet"
 SPEC = datasets.COMVE
 LENGTHS = ("very_concise", "concise", "empty", "comprehensive", "very_comprehensive")
+R_LENGTHS = ("very_concise", "empty", "very_comprehensive")  # Arm R uses three lengths.
 BUDGETS = ("128", "256", "512", "1024", "uncapped")
 R_MODELS = ("Qwen/Qwen2.5-0.5B-Instruct", "Qwen/Qwen2.5-1.5B-Instruct", "Qwen/Qwen2.5-3B-Instruct")
 CELL_METRICS = ("accuracy", "flip_rate", "mention_rate", "tpr_ct", "fpr", "phi_cct", "cct")
@@ -157,7 +158,7 @@ def arm_r(data: Data) -> None:
   boot = universe(n)
   cells, dists, blocks = [], {}, {}
   for model in R_MODELS:
-    for length in LENGTHS:
+    for length in R_LENGTHS:
       cfg = cfg_named(f"R_{short(model)}_{length}")
       rows = data.load(cfg)
       if rows.empty:
@@ -176,8 +177,8 @@ def arm_r(data: Data) -> None:
   # F-AUROC per model across the five lengths.
   fa_rows, fa_dists = [], {}
   for model in R_MODELS:
-    if all((model, l) in blocks for l in LENGTHS):
-      row, dist = f_auroc_row(short(model), [blocks[model, l] for l in LENGTHS], boot)
+    if all((model, l) in blocks for l in R_LENGTHS):
+      row, dist = f_auroc_row(short(model), [blocks[model, l] for l in R_LENGTHS], boot)
       fa_rows.append(row)
       fa_dists[model] = dist
   write(pd.DataFrame(fa_rows), OUT / "R" / "f_auroc.csv")
@@ -245,8 +246,8 @@ def arm_r(data: Data) -> None:
   # Figures.
   fig, axes = plt.subplots(1, len(R_MODELS), figsize=(4 * len(R_MODELS), 4), sharey=True)
   for ax, model in zip(np.atleast_1d(axes), R_MODELS):
-    sel = cells_df[cells_df.model == short(model)].set_index("length").reindex(LENGTHS)
-    _tpr_fpr_plot(ax, sel["fpr"], sel["tpr_ct"], LENGTHS, short(model))
+    sel = cells_df[cells_df.model == short(model)].set_index("length").reindex(R_LENGTHS)
+    _tpr_fpr_plot(ax, sel["fpr"], sel["tpr_ct"], R_LENGTHS, short(model))
   fig.tight_layout(); fig.savefig(OUT / "R" / "tpr_fpr_by_length.png", dpi=150); plt.close(fig)
 
   fig, axes = plt.subplots(1, 3, figsize=(12, 3.6))
