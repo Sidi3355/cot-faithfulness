@@ -78,15 +78,19 @@ story = [
         ["Task", "Two sentences; which one violates common sense? Label 0 or 1."],
         ["Interventions", "The paper's procedure: a random WordNet adjective before a noun, or "
          "adverb before a verb. 220 candidates per example (already generated). A judge scores "
-         "each candidate; the top 5% per example are kept, which is 11 per example."],
+         "each candidate; the top 5% per example are kept, which is 11 per example. Result: 1,837 "
+         "interventions from 167 examples."],
         ["Judge", "Qwen2.5-3B-Instruct (paper: Qwen2.5-72B). It scores the probability that its "
-         "first answer token is 'Yes' to the paper's naturalness question. It runs once, on the "
-         "first 200 examples (44,000 candidates). Like the paper's judge, it is also one of the "
-         "subject models."],
+         "first answer token is 'Yes' to the paper's naturalness question. It ran once, on the "
+         "first 167 examples (36,740 candidates), in bf16. It stopped at 167 (planned: 200) when a "
+         "restart moved the session to a CPU without bf16 hardware, to keep one number format for "
+         "the judge. Like the paper's judge, it is also one of the subject models."],
         ["Prompts", "The paper's prompts, verbatim (tested byte-identical): task description, "
          "10 training demos (the same for an example and all its edits), instruction, test example."],
-        ["Engine", "Hugging Face transformers on CPU, bf16 (the paper also used transformers, in fp16 "
-         "on GPU). Models are pinned to exact Hugging Face commits."],
+        ["Engine", "Hugging Face transformers on CPU, float32 (the paper also used transformers, in fp16 "
+         "on GPU). float32 because a restart can move the session to a different CPU: it is fast on "
+         "CPUs with and without bf16 hardware, and gives identical numbers on both. Models are "
+         "pinned to exact Hugging Face commits."],
         ["Label probabilities", "Full softmax at the label token, exactly as the paper computes "
          "them. They give the original CCT."],
         ["Mention (E)", "The paper's rule (primary). Two secondary detectors are recorded as well: "
@@ -108,9 +112,10 @@ story = [
         ["Per example", "Base run + its 11 interventions. Also one rerun of the base prompt (N1) as "
          "a determinism check, which should give zero flips."],
         ["Sample size", "Pre-pilot on the first 20 examples (no-length-instruction condition) to "
-         "measure flip rates. Then N = the smallest of 50 / 100 / 150 / 200 whose projected 95% "
+         "measure flip rates. Then N = the smallest of 50 / 100 / 150 whose projected 95% "
          "CI half-width for phi-CCT is at most 0.05 for every model (projected = pre-pilot "
-         "half-width x sqrt(20/N)); 200 if none. The pre-pilot examples are included in the N."],
+         "half-width x sqrt(20/N)); 150 if none (167 examples were judged). The pre-pilot "
+         "examples are included in the N."],
     ], [32, 138]),
     Spacer(1, 3),
     p("Findings tested", H3),
@@ -174,9 +179,9 @@ story = [
     table([
         ["Step", "What", "Est. hours"],
         ["0", "Build the CPU runner; check it against the paper's code on the same prompts; tests", "-"],
-        ["1", "Download weights for the 4 models; judge the first 200 examples; freeze interventions", "≈ 3"],
+        ["1", "Download weights for the 4 models; judge the examples; freeze interventions (done: 167 examples)", "done"],
         ["2", "Arm R pre-pilot (20 examples x 3 models) and the sample-size rule", "≈ 1"],
-        ["3", "Arm R main run (N examples x 3 models x 5 lengths)", "≈ 9-34 (N = 50-200)"],
+        ["3", "Arm R main run (N examples x 3 models x 5 lengths)", "see note"],
         ["4", "Arm C: C1 (20 conditions)", "≈ 5"],
         ["5", "Arm C: C2 thinking traces (about 2,900 traces)", "≈ 13"],
         ["6", "Arm C: C3 cells A and R", "≈ 4"],
@@ -205,9 +210,9 @@ story = [
         ["", "Full plan (EC2, GPU)", "This pilot (CPU)"],
         ["Models", "5 Qwen3 sizes + 2 Qwen2.5 anchors", "R: Qwen2.5 0.5B / 1.5B / 3B. C: Qwen3-0.6B"],
         ["Datasets", "e-SNLI, ECQA, ComVE", "ComVE"],
-        ["Examples", "All test examples", "R: N (50-200). C: 40"],
+        ["Examples", "All test examples", "R: N (50, 100 or 150). C: 40"],
         ["Judge", "Qwen2.5-32B-AWQ", "Qwen2.5-3B-Instruct"],
-        ["Engine", "vLLM, bf16", "transformers on CPU, bf16"],
+        ["Engine", "vLLM, bf16", "transformers on CPU, float32"],
         ["Samples per input", "5", "3"],
         ["Thinking cap", "8,192 tokens", "4,096 tokens"],
         ["Base vs instruction-tuned", "-", "Not included"],
