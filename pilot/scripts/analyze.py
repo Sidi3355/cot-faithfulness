@@ -165,7 +165,9 @@ def arm_r(data: Data) -> None:
       block = stats_block(rows, boot)
       summary, dist = summarize(f"{short(model)} | {length}", block, boot)
       summary.update(model=short(model), length=length,
-                     n1_flip_rate=float(rows.loc[rows.row_type == "n1", "I"].mean()))
+                     n1_flip_rate=float(rows.loc[rows.row_type == "n1", "I"].mean()),
+                     parse_failure_rate=float(rows["label"].isna().mean()),
+                     base_parse_failure_rate=float(rows.loc[rows.row_type == "base", "label"].isna().mean()))
       cells.append(summary)
       dists[model, length], blocks[model, length] = dist, block
   cells_df = pd.DataFrame(cells)
@@ -296,7 +298,8 @@ def arm_c(data: Data) -> None:
           continue
         block = stats_block(rows, boot)
         summary, _ = summarize(f"{template} | {demos} | {length}", block, boot)
-        summary.update(template=template, demos=demos, length=length, **_floors(rows, boot))
+        summary.update(template=template, demos=demos, length=length, **_floors(rows, boot),
+                       parse_failure_rate=float(rows["label"].isna().mean()))
         c1.append(summary)
         c1_blocks[template, demos, length] = block
   c1_df = pd.DataFrame(c1)
@@ -347,7 +350,7 @@ def arm_c(data: Data) -> None:
       continue
     block = stats_block(rows, boot)
     summary, _ = summarize(f"cell A | {length}", block, boot)
-    summary.update(length=length, **_floors(rows, boot))
+    summary.update(length=length, **_floors(rows, boot), parse_failure_rate=float(rows["label"].isna().mean()))
     c3a.append(summary)
     c3a_blocks[length] = block
     c3a_rows_by_len[length] = rows
