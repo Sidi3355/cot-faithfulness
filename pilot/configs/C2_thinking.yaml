@@ -20,7 +20,7 @@ decoding:
   min_p: 0.0
   n: 3
   repetition_penalty: 1.0
-interventions_path: data/pilot/natural_comve.parquet
+interventions_path: pilot/interventions/natural_comve.parquet
 interventions_sha256: 8be3e524bfd83612f3ba1ac7bf291e5b15f90bb2a274d84d9c779b9c2ec9c06e
 controls:
   n1: true

@@ -60,7 +60,7 @@ class _LabelRecorder(LogitsProcessor):
 
   def __call__(self, input_ids, scores):
     probs = torch.softmax(scores.float(), dim=-1)[:, self.token_ids]
-    out = torch.zeros(scores.shape[0], self.n_labels, dtype=torch.float32)
+    out = torch.zeros(scores.shape[0], self.n_labels, dtype=torch.float32, device=scores.device)
     self.steps.append(out.index_add_(1, self.label_index, probs))
     return scores
 
@@ -76,14 +76,16 @@ def common_prefix_len(seqs: Sequence[Sequence[int]]) -> int:
 
 class HFEngine:
   def __init__(self, model_name: str, dtype: torch.dtype = torch.bfloat16, threads: int = 4,
-               cache_dir: str = tokens.DEFAULT_CACHE_DIR):
+               cache_dir: str = tokens.DEFAULT_CACHE_DIR, device: str = "cpu"):
     info = models.get(model_name)
     torch.set_num_threads(threads)
     self.info = info
+    self.device = torch.device(device)
     self.tokenizer = AutoTokenizer.from_pretrained(
         info.name, revision=info.revision, cache_dir=cache_dir, local_files_only=True)
     self.model = AutoModelForCausalLM.from_pretrained(
-        info.name, revision=info.revision, cache_dir=cache_dir, local_files_only=True, dtype=dtype).eval()
+        info.name, revision=info.revision, cache_dir=cache_dir, local_files_only=True, dtype=dtype,
+    ).to(self.device).eval()
     eos = self.model.generation_config.eos_token_id
     self.eos_ids = set(eos if isinstance(eos, list) else [eos])
     self.pad_id = self.model.generation_config.pad_token_id
@@ -107,7 +109,7 @@ class HFEngine:
     if p > 0:
       # The transformer body only: the prefix's output scores are never used.
       body = getattr(self.model, "model", self.model)
-      body(torch.tensor([list(prompts[0][:p])]), past_key_values=cache, use_cache=True)
+      body(torch.tensor([list(prompts[0][:p])], device=self.device), past_key_values=cache, use_cache=True)
     return p, cache
 
   def _batch_inputs(self, prompts, p, cache, rows):
@@ -118,7 +120,7 @@ class HFEngine:
     batch_cache = copy.deepcopy(cache)
     if p > 0:
       batch_cache.batch_repeat_interleave(len(rows))
-    return torch.tensor(ids), torch.tensor(mask), batch_cache
+    return torch.tensor(ids, device=self.device), torch.tensor(mask, device=self.device), batch_cache
 
   # Next-token distribution (naturalness judge) -------------------------------
 
@@ -183,8 +185,8 @@ class HFEngine:
       chunk: int = 64,
   ) -> list[list[Output]]:
     """n outputs per prompt. `label_tokens` maps token id -> label index."""
-    ids_t = torch.tensor(sorted(label_tokens))
-    lab_t = torch.tensor([label_tokens[t] for t in sorted(label_tokens)])
+    ids_t = torch.tensor(sorted(label_tokens), device=self.device)
+    lab_t = torch.tensor([label_tokens[t] for t in sorted(label_tokens)], device=self.device)
     p, cache = self._prefix(prompts)
     rows = [(i, s) for i in range(len(prompts)) for s in range(n)]
     results: list[list[Output | None]] = [[None] * n for _ in prompts]
@@ -237,14 +239,14 @@ class HFEngine:
       remaining -= new.shape[1]
       if not keep or new.shape[1] == 0:
         break
-      keep_t = torch.tensor(keep)
+      keep_t = torch.tensor(keep, device=ids.device)
       ids = out.sequences[keep_t]
-      mask = torch.cat([mask[keep_t], torch.ones(len(keep), new.shape[1], dtype=mask.dtype)], dim=1)
+      mask = torch.cat([mask[keep_t], torch.ones(len(keep), new.shape[1], dtype=mask.dtype, device=mask.device)], dim=1)
       cache = out.past_key_values
       cache.batch_select_indices(keep_t)
       active = [active[j] for j in keep]
     return [
-        Output(toks[r], torch.cat(probs[r]).numpy() if probs[r] else np.zeros((0, recorder.n_labels)), finished[r])
+        Output(toks[r], torch.cat(probs[r]).cpu().numpy() if probs[r] else np.zeros((0, recorder.n_labels)), finished[r])
         for r in range(b)
     ]
 

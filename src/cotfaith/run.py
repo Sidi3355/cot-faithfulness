@@ -81,7 +81,7 @@ def _sampling(cfg: config_lib.RunConfig) -> Sampling:
 
 class Runner:
   def __init__(self, cfg: config_lib.RunConfig, data_dir: str, results_root: str, threads: int = 4,
-               batch_size: int = 16, log: Callable[[str], None] = print, dtype=None):
+               batch_size: int = 16, log: Callable[[str], None] = print, dtype=None, device: str = "cpu"):
     if cfg.engine != "hf_cpu":
       raise ValueError("this runner implements the hf_cpu engine")
     self.cfg, self.log, self.batch_size = cfg, log, batch_size
@@ -94,7 +94,7 @@ class Runner:
     self.twins = interventions.n2_twins(self.ints, self.test)
     self.out_dir = cfg.results_dir(results_root)
     (self.out_dir / "rows").mkdir(parents=True, exist_ok=True)
-    self.engine = HFEngine(cfg.model, threads=threads, dtype=dtype or getattr(torch, cfg.dtype))
+    self.engine = HFEngine(cfg.model, threads=threads, dtype=dtype or getattr(torch, cfg.dtype), device=device)
     self.tok = self.engine.tokenizer
     self.label_tokens = {
         t: self.spec.class_labels.index(l)
@@ -105,18 +105,19 @@ class Runner:
     if cfg.thinking:
       self.think_start, self.think_end = tokens.think_token_ids(self.tok)
       self.early_exit_ids = self.engine.encode(budget.EARLY_EXIT)
-    self._write_meta()
+    self._write_meta(device)
 
   # Bookkeeping ---------------------------------------------------------------
 
-  def _write_meta(self):
+  def _write_meta(self, device: str = "cpu"):
     (self.out_dir / config_lib.CONFIG_FILE).write_text(config_lib.dump(self.cfg))
     meta_path = self.out_dir / config_lib.META_FILE
     meta = json.loads(meta_path.read_text()) if meta_path.exists() else {}
     meta.setdefault("started", time.strftime("%Y-%m-%dT%H:%M:%S"))
     meta.update(
         git_commit=subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip(),
-        engine="hf_cpu", dtype=str(self.engine.model.dtype).replace("torch.", ""),
+        engine="hf_cpu", dtype=str(self.engine.model.dtype).replace("torch.", ""), device=device,
+        gpu=torch.cuda.get_device_name(0) if device.startswith("cuda") else None,
         versions={p: importlib.metadata.version(p) for p in ("torch", "transformers", "numpy", "pandas")},
         model_revision=self.engine.info.revision,
         interventions_sha256=sha256(self.cfg.interventions_path),

@@ -10,7 +10,8 @@ import pathlib
 from cotfaith import config, models, prompts
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-INTERVENTIONS = ROOT / "data" / "pilot" / "natural_comve.parquet"
+# Frozen by pilot/scripts/judge.py (a copy of data/pilot/natural_comve.parquet, kept in the repo).
+INTERVENTIONS = ROOT / "pilot" / "interventions" / "natural_comve.parquet"
 R_MODELS = ("Qwen/Qwen2.5-0.5B-Instruct", "Qwen/Qwen2.5-1.5B-Instruct", "Qwen/Qwen2.5-3B-Instruct")
 C_MODEL = "Qwen/Qwen3-0.6B"
 C_EXAMPLES = 40

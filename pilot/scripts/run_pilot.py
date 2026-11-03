@@ -20,6 +20,7 @@ def main() -> None:
   parser.add_argument("configs", nargs="+")
   parser.add_argument("--threads", type=int, default=4)
   parser.add_argument("--batch-size", type=int, default=16)
+  parser.add_argument("--device", default="cpu", help="cpu, cuda or cuda:N (Kaggle/Colab GPU)")
   args = parser.parse_args()
   for path in args.configs:
     cfg = config.load(path)
@@ -28,10 +29,10 @@ def main() -> None:
     # Memory on a 15 GB machine in float32: 3B weights are ~12.4 GB, and a thinking
     # row's KV cache can reach ~4,700 tokens x 230 KB (Qwen3-0.6B) = ~1 GB.
     batch_size = args.batch_size
-    if models.get(cfg.model).params >= 3e9 or cfg.thinking:
+    if args.device == "cpu" and (models.get(cfg.model).params >= 3e9 or cfg.thinking):
       batch_size = min(batch_size, 8)
     runner = run.Runner(cfg, str(ROOT / "data"), str(RESULTS), threads=args.threads,
-                        batch_size=batch_size, log=lambda m: print(m, flush=True))
+                        batch_size=batch_size, log=lambda m: print(m, flush=True), device=args.device)
     runner.run()
     del runner
     print(f"== done {pathlib.Path(path).name} in {(time.time() - start) / 60:.1f} min", flush=True)
