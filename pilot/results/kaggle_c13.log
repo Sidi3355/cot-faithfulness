@@ -361,3 +361,33 @@ ep-labels_only-very_comprehensive-nothink-sample3 example 506: 72 rows in 65s
 == done C3A_very_comprehensive.yaml in 41.4 min
 == C3A_very_concise.yaml
 Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<02:53,  1.79it/s]Loading weights:  78%|███████▊  | 242/311 [00:00<00:00, 491.24it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 441.40it/s]
+Traceback (most recent call last):
+  File "/kaggle/working/cot-faithfulness/pilot/scripts/run_pilot.py", line 42, in <module>
+    main()
+    ~~~~^^
+  File "/kaggle/working/cot-faithfulness/pilot/scripts/run_pilot.py", line 36, in main
+    runner.run()
+    ~~~~~~~~~~^^
+  File "/kaggle/working/cot-faithfulness/src/cotfaith/run.py", line 143, in run
+    rows = self.run_example(data_idx, test_row)
+  File "/kaggle/working/cot-faithfulness/src/cotfaith/run.py", line 171, in run_example
+    outs = self.engine.generate(
+        prompt_ids, n=self.cfg.decoding.n, sampling=self.sampling, max_new_tokens=self.cfg.max_new_tokens,
+        label_tokens=self.label_tokens, n_labels=len(self.spec.class_labels), seed=seed,
+        batch_size=self.batch_size, chunk=64,
+    )
+  File "/usr/local/lib/python3.13/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+  File "/kaggle/working/cot-faithfulness/src/cotfaith/hf_engine.py", line 196, in generate
+    ids, mask, batch_cache = self._batch_inputs(prompts, p, cache, [i for i, _ in batch_rows])
+                             ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/cot-faithfulness/src/cotfaith/hf_engine.py", line 122, in _batch_inputs
+    batch_cache.batch_repeat_interleave(len(rows))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/transformers/cache_utils.py", line 1679, in batch_repeat_interleave
+    self.layers[layer_idx].batch_repeat_interleave(repeats)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/transformers/cache_utils.py", line 202, in batch_repeat_interleave
+    self.values = self.values.repeat_interleave(repeats, dim=0)
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 74.00 MiB. GPU 1 has a total capacity of 14.56 GiB of which 18.81 MiB is free. Including non-PyTorch memory, this process has 14.54 GiB memory in use. Of the allocated memory 10.93 GiB is allocated by PyTorch, and 3.49 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
