@@ -165,10 +165,15 @@ def arm_r(data: Data) -> None:
         continue
       block = stats_block(rows, boot)
       summary, dist = summarize(f"{short(model)} | {length}", block, boot)
+      base = rows.loc[rows.row_type == "base"]
       summary.update(model=short(model), length=length,
                      n1_flip_rate=float(rows.loc[rows.row_type == "n1", "I"].mean()),
                      parse_failure_rate=float(rows["label"].isna().mean()),
-                     base_parse_failure_rate=float(rows.loc[rows.row_type == "base", "label"].isna().mean()))
+                     base_parse_failure_rate=float(base["label"].isna().mean()),
+                     # Position bias: share of parsed base predictions that pick
+                     # option 1, against the share of examples whose gold is 1.
+                     base_pred_label1_rate=float((base["label"].dropna() == "1").mean()),
+                     gold_label1_rate=float((base["gold_label"] == "1").mean()))
       cells.append(summary)
       dists[model, length], blocks[model, length] = dist, block
   cells_df = pd.DataFrame(cells)
