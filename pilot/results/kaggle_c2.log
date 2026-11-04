@@ -176,3 +176,10 @@ po-labels_only-empty-think-sample3 example 554: 360 rows in 860s
   example 28: traces for 12/24 items
   example 28: traces for 15/24 items
   example 28: traces for 18/24 items
+  example 28: traces for 21/24 items
+  example 28: traces for 24/24 items
+po-labels_only-empty-think-sample3 example 28: 360 rows in 841s
+  example 479: traces for 3/24 items
+  example 479: traces for 6/24 items
+  example 479: traces for 9/24 items
+  example 479: traces for 12/24 items
