@@ -221,3 +221,15 @@ ep-labels_only-comprehensive-nothink-sample3 example 697: 72 rows in 37s
 ep-labels_only-comprehensive-nothink-sample3 example 1513: 72 rows in 90s
 ep-labels_only-comprehensive-nothink-sample3 example 1185: 72 rows in 66s
 ep-labels_only-comprehensive-nothink-sample3 example 526: 72 rows in 56s
+ep-labels_only-comprehensive-nothink-sample3 example 646: 72 rows in 73s
+ep-labels_only-comprehensive-nothink-sample3 example 715: 72 rows in 75s
+ep-labels_only-comprehensive-nothink-sample3 example 1605: 72 rows in 54s
+ep-labels_only-comprehensive-nothink-sample3 example 1579: 72 rows in 90s
+ep-labels_only-comprehensive-nothink-sample3 example 108: 72 rows in 100s
+ep-labels_only-comprehensive-nothink-sample3 example 1760: 72 rows in 43s
+ep-labels_only-comprehensive-nothink-sample3 example 552: 72 rows in 53s
+ep-labels_only-comprehensive-nothink-sample3 example 506: 72 rows in 90s
+== done C3A_comprehensive.yaml in 43.4 min
+== C3A_concise.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<02:46,  1.86it/s]Loading weights:  80%|███████▉  | 248/311 [00:00<00:00, 507.58it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 418.98it/s]
+ep-labels_only-concise-nothink-sample3 example 1439: 72 rows in 29s
