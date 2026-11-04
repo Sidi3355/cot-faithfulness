@@ -131,3 +131,64 @@ pe-with_explanations-very_comprehensive-nothink-greedy1 example 216: 24 rows in 
 pe-with_explanations-very_comprehensive-nothink-greedy1 example 554: 24 rows in 7s
 pe-with_explanations-very_comprehensive-nothink-greedy1 example 28: 24 rows in 10s
 pe-with_explanations-very_comprehensive-nothink-greedy1 example 479: 24 rows in 8s
+pe-with_explanations-very_comprehensive-nothink-greedy1 example 697: 24 rows in 10s
+pe-with_explanations-very_comprehensive-nothink-greedy1 example 1513: 24 rows in 7s
+pe-with_explanations-very_comprehensive-nothink-greedy1 example 1185: 24 rows in 10s
+pe-with_explanations-very_comprehensive-nothink-greedy1 example 526: 24 rows in 12s
+pe-with_explanations-very_comprehensive-nothink-greedy1 example 646: 24 rows in 6s
+pe-with_explanations-very_comprehensive-nothink-greedy1 example 715: 24 rows in 12s
+pe-with_explanations-very_comprehensive-nothink-greedy1 example 1605: 24 rows in 8s
+pe-with_explanations-very_comprehensive-nothink-greedy1 example 1579: 24 rows in 5s
+pe-with_explanations-very_comprehensive-nothink-greedy1 example 108: 24 rows in 6s
+pe-with_explanations-very_comprehensive-nothink-greedy1 example 1760: 24 rows in 9s
+pe-with_explanations-very_comprehensive-nothink-greedy1 example 552: 24 rows in 8s
+pe-with_explanations-very_comprehensive-nothink-greedy1 example 506: 24 rows in 12s
+== done C1_pe_with_explanations_very_comprehensive.yaml in 5.7 min
+== C1_pe_with_explanations_very_concise.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<03:03,  1.69it/s]Loading weights:  83%|████████▎ | 259/311 [00:00<00:00, 490.16it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 411.95it/s]
+pe-with_explanations-very_concise-nothink-greedy1 example 1439: 24 rows in 6s
+pe-with_explanations-very_concise-nothink-greedy1 example 161: 24 rows in 5s
+pe-with_explanations-very_concise-nothink-greedy1 example 1770: 24 rows in 5s
+pe-with_explanations-very_concise-nothink-greedy1 example 1198: 24 rows in 4s
+pe-with_explanations-very_concise-nothink-greedy1 example 1818: 24 rows in 4s
+pe-with_explanations-very_concise-nothink-greedy1 example 1027: 24 rows in 9s
+pe-with_explanations-very_concise-nothink-greedy1 example 762: 24 rows in 5s
+pe-with_explanations-very_concise-nothink-greedy1 example 877: 24 rows in 5s
+pe-with_explanations-very_concise-nothink-greedy1 example 68: 24 rows in 6s
+pe-with_explanations-very_concise-nothink-greedy1 example 687: 24 rows in 8s
+pe-with_explanations-very_concise-nothink-greedy1 example 1344: 24 rows in 6s
+pe-with_explanations-very_concise-nothink-greedy1 example 583: 24 rows in 5s
+pe-with_explanations-very_concise-nothink-greedy1 example 968: 24 rows in 5s
+pe-with_explanations-very_concise-nothink-greedy1 example 1642: 24 rows in 6s
+pe-with_explanations-very_concise-nothink-greedy1 example 1993: 24 rows in 4s
+pe-with_explanations-very_concise-nothink-greedy1 example 1956: 24 rows in 8s
+pe-with_explanations-very_concise-nothink-greedy1 example 812: 24 rows in 7s
+pe-with_explanations-very_concise-nothink-greedy1 example 746: 24 rows in 7s
+pe-with_explanations-very_concise-nothink-greedy1 example 607: 24 rows in 5s
+pe-with_explanations-very_concise-nothink-greedy1 example 1531: 24 rows in 6s
+pe-with_explanations-very_concise-nothink-greedy1 example 1984: 24 rows in 6s
+pe-with_explanations-very_concise-nothink-greedy1 example 926: 24 rows in 5s
+pe-with_explanations-very_concise-nothink-greedy1 example 56: 24 rows in 8s
+pe-with_explanations-very_concise-nothink-greedy1 example 1860: 24 rows in 7s
+pe-with_explanations-very_concise-nothink-greedy1 example 216: 24 rows in 4s
+pe-with_explanations-very_concise-nothink-greedy1 example 554: 24 rows in 4s
+pe-with_explanations-very_concise-nothink-greedy1 example 28: 24 rows in 12s
+pe-with_explanations-very_concise-nothink-greedy1 example 479: 24 rows in 5s
+pe-with_explanations-very_concise-nothink-greedy1 example 697: 24 rows in 7s
+pe-with_explanations-very_concise-nothink-greedy1 example 1513: 24 rows in 6s
+pe-with_explanations-very_concise-nothink-greedy1 example 1185: 24 rows in 5s
+pe-with_explanations-very_concise-nothink-greedy1 example 526: 24 rows in 5s
+pe-with_explanations-very_concise-nothink-greedy1 example 646: 24 rows in 6s
+pe-with_explanations-very_concise-nothink-greedy1 example 715: 24 rows in 7s
+pe-with_explanations-very_concise-nothink-greedy1 example 1605: 24 rows in 5s
+pe-with_explanations-very_concise-nothink-greedy1 example 1579: 24 rows in 5s
+pe-with_explanations-very_concise-nothink-greedy1 example 108: 24 rows in 5s
+pe-with_explanations-very_concise-nothink-greedy1 example 1760: 24 rows in 4s
+pe-with_explanations-very_concise-nothink-greedy1 example 552: 24 rows in 6s
+pe-with_explanations-very_concise-nothink-greedy1 example 506: 24 rows in 7s
+== done C1_pe_with_explanations_very_concise.yaml in 4.0 min
+== C3A_comprehensive.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<03:02,  1.70it/s]Loading weights:  86%|████████▌ | 268/311 [00:00<00:00, 522.34it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 414.15it/s]
+ep-labels_only-comprehensive-nothink-sample3 example 1439: 72 rows in 87s
+ep-labels_only-comprehensive-nothink-sample3 example 161: 72 rows in 63s
+ep-labels_only-comprehensive-nothink-sample3 example 1770: 72 rows in 71s
