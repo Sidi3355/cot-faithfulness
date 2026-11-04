@@ -8,7 +8,12 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 export PYTHONPATH="$PWD/src"
+# Lets the allocator reuse freed GPU memory across batches of different shapes.
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 RESULTS_BRANCH=pilot-c-results
+# The results branch is checked out in its own worktree, so the code that runs
+# is always this checkout's.
+RES="$PWD/../pilot-results"
 mkdir -p pilot/logs
 
 echo "== installing (Kaggle's torch; tokenizer/generation libraries pinned as in uv.lock)"
@@ -29,21 +34,24 @@ EOF
 echo "== results branch"
 git config user.name "pilot-runner"
 git config user.email "pilot-runner@users.noreply.github.com"
+git worktree remove --force "$RES" 2> /dev/null || true
+git worktree prune
 if git ls-remote --exit-code --heads origin "$RESULTS_BRANCH" > /dev/null; then
   git fetch -q origin "$RESULTS_BRANCH"
-  git checkout -q -B "$RESULTS_BRANCH" "origin/$RESULTS_BRANCH"
+  git worktree add -q -B "$RESULTS_BRANCH" "$RES" "origin/$RESULTS_BRANCH"
 else
-  git checkout -q -B "$RESULTS_BRANCH"
+  git worktree add -q -B "$RESULTS_BRANCH" "$RES" HEAD
 fi
-mkdir -p data/pilot/raw pilot/results/raw
-cp -a pilot/results/raw/. data/pilot/raw/   # Resume from earlier sessions.
+mkdir -p data/pilot/raw "$RES/pilot/results/raw"
+cp -a "$RES/pilot/results/raw/." data/pilot/raw/          # Resume from earlier sessions.
+cp "$RES"/pilot/results/kaggle_*.log pilot/logs/ 2> /dev/null || true  # Logs are appended to.
 
 push_results() {
-  cp -a data/pilot/raw/. pilot/results/raw/
-  cp pilot/logs/kaggle_*.log pilot/results/ 2>/dev/null || true
-  git add -f pilot/results
-  git commit -q -m "Pilot arm C results from Kaggle ($(date -u +%FT%TZ))" || return 0
-  git push -q origin "HEAD:$RESULTS_BRANCH" || echo "push failed; will retry"
+  cp -a data/pilot/raw/. "$RES/pilot/results/raw/"
+  cp pilot/logs/kaggle_*.log "$RES/pilot/results/" 2> /dev/null || true
+  git -C "$RES" add -f pilot/results
+  git -C "$RES" commit -q -m "Pilot arm C results from Kaggle ($(date -u +%FT%TZ))" > /dev/null || true
+  git -C "$RES" push -q origin "HEAD:$RESULTS_BRANCH" || echo "push failed; will retry"
 }
 
 C2=(pilot/configs/C2_thinking.yaml)
@@ -51,18 +59,25 @@ C13=(pilot/configs/C1_*.yaml pilot/configs/C3A_*.yaml pilot/configs/C3R.yaml)
 run() {  # device batch_size configs...
   python pilot/scripts/run_pilot.py --device "$1" --batch-size "$2" "${@:3}"
 }
+run_each() {  # Same, one process per config, so GPU memory is freed between configs.
+  local status=0 c
+  for c in "${@:3}"; do run "$1" "$2" "$c" || status=1; done
+  return $status
+}
 
 echo "== running"
 N_GPUS=$(python -c "import torch; print(torch.cuda.device_count())")
+echo "== session $(date -u +%FT%TZ)" | tee -a pilot/logs/kaggle_c2.log pilot/logs/kaggle_c13.log > /dev/null
 # Thinking runs: 3 prompts x 3 samples per batch keeps the worst-case fp32 KV
 # cache (~4,700 tokens x 230 KB per row) within a 16 GB GPU.
 if [ "$N_GPUS" -ge 2 ]; then
-  run cuda:0 9 "${C2[@]}" > pilot/logs/kaggle_c2.log 2>&1 &
+  run cuda:0 9 "${C2[@]}" >> pilot/logs/kaggle_c2.log 2>&1 &
   P1=$!
-  run cuda:1 32 "${C13[@]}" > pilot/logs/kaggle_c13.log 2>&1 &
+  run_each cuda:1 32 "${C13[@]}" >> pilot/logs/kaggle_c13.log 2>&1 &
   P2=$!
 else
-  (run cuda:0 9 "${C2[@]}" && run cuda:0 32 "${C13[@]}") > pilot/logs/kaggle_all.log 2>&1 &
+  (s=0; run cuda:0 9 "${C2[@]}" || s=1; run_each cuda:0 32 "${C13[@]}" || s=1; exit $s) \
+    >> pilot/logs/kaggle_c13.log 2>&1 &
   P1=$!
   P2=$P1
 fi
