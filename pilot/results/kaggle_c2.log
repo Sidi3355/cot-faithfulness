@@ -292,3 +292,8 @@ po-labels_only-empty-think-sample3 example 552: 360 rows in 1242s
   example 506: traces for 9/24 items
   example 506: traces for 12/24 items
   example 506: traces for 15/24 items
+  example 506: traces for 18/24 items
+  example 506: traces for 21/24 items
+  example 506: traces for 24/24 items
+po-labels_only-empty-think-sample3 example 506: 360 rows in 1261s
+== done C2_thinking.yaml in 526.5 min
