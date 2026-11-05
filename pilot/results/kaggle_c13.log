@@ -790,3 +790,75 @@ ep-with_explanations-very_concise-nothink-greedy1-tolerant example 1818: 24 rows
 ep-with_explanations-very_concise-nothink-greedy1-tolerant example 1027: 24 rows in 9s
 ep-with_explanations-very_concise-nothink-greedy1-tolerant example 762: 24 rows in 5s
 ep-with_explanations-very_concise-nothink-greedy1-tolerant example 877: 24 rows in 12s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 68: 24 rows in 7s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 687: 24 rows in 6s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 1344: 24 rows in 8s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 583: 24 rows in 5s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 968: 24 rows in 6s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 1642: 24 rows in 6s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 1993: 24 rows in 7s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 1956: 24 rows in 6s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 812: 24 rows in 7s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 746: 24 rows in 5s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 607: 24 rows in 5s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 1531: 24 rows in 6s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 1984: 24 rows in 6s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 926: 24 rows in 5s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 56: 24 rows in 6s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 1860: 24 rows in 6s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 216: 24 rows in 7s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 554: 24 rows in 6s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 28: 24 rows in 6s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 479: 24 rows in 7s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 697: 24 rows in 4s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 1513: 24 rows in 6s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 1185: 24 rows in 5s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 526: 24 rows in 6s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 646: 24 rows in 8s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 715: 24 rows in 8s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 1605: 24 rows in 5s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 1579: 24 rows in 11s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 108: 24 rows in 6s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 1760: 24 rows in 5s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 552: 24 rows in 6s
+ep-with_explanations-very_concise-nothink-greedy1-tolerant example 506: 24 rows in 10s
+== done C1_ep_with_explanations_very_concise.yaml in 4.5 min
+== C1_pe_labels_only_comprehensive.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<01:41,  3.04it/s]Loading weights:  47%|████▋     | 147/311 [00:00<00:00, 426.28it/s]Loading weights:  72%|███████▏  | 223/311 [00:00<00:00, 464.49it/s]Loading weights:  93%|█████████▎| 289/311 [00:00<00:00, 448.23it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 400.67it/s]
+== done C1_pe_labels_only_comprehensive.yaml in 0.1 min
+== C1_pe_labels_only_concise.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<01:43,  3.00it/s]Loading weights:  57%|█████▋    | 178/311 [00:00<00:00, 529.91it/s]Loading weights:  90%|█████████ | 280/311 [00:00<00:00, 552.06it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 475.60it/s]
+== done C1_pe_labels_only_concise.yaml in 0.1 min
+== C1_pe_labels_only_empty.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<02:42,  1.91it/s]Loading weights:  64%|██████▍   | 199/311 [00:00<00:00, 425.69it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 380.82it/s]
+== done C1_pe_labels_only_empty.yaml in 0.1 min
+== C1_pe_labels_only_very_comprehensive.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<01:57,  2.64it/s]Loading weights:  48%|████▊     | 148/311 [00:00<00:00, 403.45it/s]Loading weights:  76%|███████▌  | 235/311 [00:00<00:00, 454.72it/s]Loading weights:  99%|█████████▊| 307/311 [00:00<00:00, 482.06it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 401.02it/s]
+== done C1_pe_labels_only_very_comprehensive.yaml in 0.1 min
+== C1_pe_labels_only_very_concise.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<02:49,  1.82it/s]Loading weights:  54%|█████▍    | 169/311 [00:00<00:00, 345.64it/s]Loading weights:  85%|████████▍ | 264/311 [00:00<00:00, 416.16it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 346.65it/s]
+== done C1_pe_labels_only_very_concise.yaml in 0.1 min
+== C1_pe_with_explanations_comprehensive.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<01:24,  3.66it/s]Loading weights:  17%|█▋        | 53/311 [00:00<00:01, 180.89it/s]Loading weights:  61%|██████▏   | 191/311 [00:00<00:00, 572.92it/s]Loading weights:  87%|████████▋ | 270/311 [00:00<00:00, 569.96it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 463.68it/s]
+== done C1_pe_with_explanations_comprehensive.yaml in 0.1 min
+== C1_pe_with_explanations_concise.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<02:40,  1.93it/s]Loading weights:  69%|██████▉   | 214/311 [00:00<00:00, 461.49it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 400.86it/s]
+== done C1_pe_with_explanations_concise.yaml in 0.1 min
+== C1_pe_with_explanations_empty.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<01:08,  4.55it/s]Loading weights:  48%|████▊     | 149/311 [00:00<00:00, 546.34it/s]Loading weights:  72%|███████▏  | 223/311 [00:00<00:00, 576.23it/s]Loading weights:  94%|█████████▍| 292/311 [00:00<00:00, 509.85it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 485.13it/s]
+== done C1_pe_with_explanations_empty.yaml in 0.1 min
+== C1_pe_with_explanations_very_comprehensive.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<01:43,  3.00it/s]Loading weights:  50%|█████     | 156/311 [00:00<00:00, 465.96it/s]Loading weights:  79%|███████▉  | 247/311 [00:00<00:00, 493.40it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 442.45it/s]
+== done C1_pe_with_explanations_very_comprehensive.yaml in 0.1 min
+== C1_pe_with_explanations_very_concise.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<02:04,  2.48it/s]Loading weights:  66%|██████▌   | 204/311 [00:00<00:00, 516.61it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 556.33it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 452.03it/s]
+== done C1_pe_with_explanations_very_concise.yaml in 0.1 min
+== C3A_empty.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<01:44,  2.97it/s]Loading weights:  47%|████▋     | 147/311 [00:00<00:00, 417.87it/s]Loading weights:  71%|███████▏  | 222/311 [00:00<00:00, 457.17it/s]Loading weights:  92%|█████████▏| 287/311 [00:00<00:00, 474.48it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 409.45it/s]
+ep-labels_only-empty-nothink-sample3-tolerant example 1439: 72 rows in 31s
+ep-labels_only-empty-nothink-sample3-tolerant example 161: 72 rows in 48s
+ep-labels_only-empty-nothink-sample3-tolerant example 1770: 72 rows in 31s
+ep-labels_only-empty-nothink-sample3-tolerant example 1198: 72 rows in 32s
+ep-labels_only-empty-nothink-sample3-tolerant example 1818: 72 rows in 48s
+ep-labels_only-empty-nothink-sample3-tolerant example 1027: 72 rows in 33s
+ep-labels_only-empty-nothink-sample3-tolerant example 762: 72 rows in 32s
