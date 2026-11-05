@@ -51,7 +51,7 @@ def configs(r_examples: int) -> dict[str, config.RunConfig]:
         name = f"C1_{template}_{demos}_{length}"
         out[name] = config.RunConfig(**_base(
             C_MODEL, C_EXAMPLES, experiment_id=name, phase="phase1", template=template, demos=demos,
-            length=length, decoding={"mode": "greedy"},
+            length=length, decoding={"mode": "greedy"}, parser="tolerant" if template == "ep" else "upstream",
         ))
   out["C2_thinking"] = config.RunConfig(**_base(
       C_MODEL, C_EXAMPLES, experiment_id="C2_thinking", phase="phase2", template="po", demos="labels_only",
@@ -62,7 +62,7 @@ def configs(r_examples: int) -> dict[str, config.RunConfig]:
     name = f"C3A_{length}"
     out[name] = config.RunConfig(**_base(
         C_MODEL, C_EXAMPLES, experiment_id=name, phase="phase3", template="ep", demos="labels_only",
-        length=length, decoding=sampled,
+        length=length, decoding=sampled, parser="tolerant",
     ))
   out["C3R"] = config.RunConfig(**_base(
       C_MODEL, C_EXAMPLES, experiment_id="C3R", phase="phase3", template="po", demos="labels_only",

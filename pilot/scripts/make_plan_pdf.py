@@ -164,6 +164,9 @@ story = [
         "<b>Budgets:</b> each trace is generated once. For a budget B, a longer trace is cut "
         "after B thinking tokens and closed with Qwen's own stop phrase (checked against the Qwen3 "
         "technical report), then a fresh answer is sampled.",
+        "<b>Parsing:</b> upstream's answer patterns. Explain-then-predict answers (C1 EP, C3 cell "
+        "A) that they reject are retried with a pattern allowing a multi-line explanation and a "
+        "full stop after the label; answers upstream accepts parse identically.",
         "<b>Computed:</b> all metrics and CIs, as in Arm R. Also: flip rates for real edits vs N1 "
         "and N2 (the noise floor); the dummy explainers (always mention; mention at random); copy "
         "rates (how much of the trace restates the input); and the parse-failure and "

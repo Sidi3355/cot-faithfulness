@@ -38,3 +38,4 @@ thinking_cap: 4096
 pilot: true
 n_examples: 40
 smoke: false
+parser: upstream

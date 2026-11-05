@@ -55,6 +55,11 @@ These are small and don't change the protocol:
 - **Qwen3 handling:** thinking is set explicitly; answers are parsed after `</think>`; thinking is
   capped at 8,192 tokens.
 - **Confidence intervals:** a 10,000-resample bootstrap clustered by example.
+- **Answer parsing:** upstream's regexes, verbatim. In pilot arm C, explain-then-predict answers
+  that upstream's pattern rejects are retried with a pattern that allows a multi-line explanation
+  and a full stop or bold markers after the label; answers upstream accepts parse identically.
+  With labels-only demos, Qwen3-0.6B's upstream parse failures were 36–79% (C3A) and fell to
+  2–19%. Whether the main study uses it is decided from the pilot.
 
 ### 2.3 Closest prior work
 

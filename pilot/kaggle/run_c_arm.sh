@@ -54,30 +54,34 @@ push_results() {
   git -C "$RES" push -q origin "HEAD:$RESULTS_BRANCH" || echo "push failed; will retry"
 }
 
-C2=(pilot/configs/C2_thinking.yaml)
-C13=(pilot/configs/C1_*.yaml pilot/configs/C3A_*.yaml pilot/configs/C3R.yaml)
-run() {  # device batch_size configs...
-  python pilot/scripts/run_pilot.py --device "$1" --batch-size "$2" "${@:3}"
-}
-run_each() {  # Same, one process per config, so GPU memory is freed between configs.
-  local status=0 c
-  for c in "${@:3}"; do run "$1" "$2" "$c" || status=1; done
+# Two queues of about equal length once C2 (~9 h) is done; each config runs in
+# its own process, so GPU memory is freed between configs, and a failed config
+# does not stop the rest of its queue.
+Q0=(pilot/configs/C2_thinking.yaml pilot/configs/C3A_very_comprehensive.yaml
+    pilot/configs/C3A_comprehensive.yaml pilot/configs/C3R.yaml)
+Q1=(pilot/configs/C1_*.yaml pilot/configs/C3A_empty.yaml pilot/configs/C3A_concise.yaml
+    pilot/configs/C3A_very_concise.yaml)
+run_each() {  # device configs...
+  local status=0 c bs
+  for c in "${@:2}"; do
+    # Thinking runs: 3 prompts x 3 samples per batch keeps the worst-case fp32 KV
+    # cache (~4,700 tokens x 230 KB per row) within a 16 GB GPU.
+    if [[ "$c" == *C2_* ]]; then bs=9; else bs=32; fi
+    python pilot/scripts/run_pilot.py --device "$1" --batch-size "$bs" "$c" || status=1
+  done
   return $status
 }
 
 echo "== running"
 N_GPUS=$(python -c "import torch; print(torch.cuda.device_count())")
 echo "== session $(date -u +%FT%TZ)" | tee -a pilot/logs/kaggle_c2.log pilot/logs/kaggle_c13.log > /dev/null
-# Thinking runs: 3 prompts x 3 samples per batch keeps the worst-case fp32 KV
-# cache (~4,700 tokens x 230 KB per row) within a 16 GB GPU.
 if [ "$N_GPUS" -ge 2 ]; then
-  run cuda:0 9 "${C2[@]}" >> pilot/logs/kaggle_c2.log 2>&1 &
+  run_each cuda:0 "${Q0[@]}" >> pilot/logs/kaggle_c2.log 2>&1 &
   P1=$!
-  run_each cuda:1 32 "${C13[@]}" >> pilot/logs/kaggle_c13.log 2>&1 &
+  run_each cuda:1 "${Q1[@]}" >> pilot/logs/kaggle_c13.log 2>&1 &
   P2=$!
 else
-  (s=0; run cuda:0 9 "${C2[@]}" || s=1; run_each cuda:0 32 "${C13[@]}" || s=1; exit $s) \
-    >> pilot/logs/kaggle_c13.log 2>&1 &
+  run_each cuda:0 "${Q0[@]}" "${Q1[@]}" >> pilot/logs/kaggle_c13.log 2>&1 &
   P1=$!
   P2=$P1
 fi

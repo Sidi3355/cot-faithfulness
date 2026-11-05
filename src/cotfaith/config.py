@@ -97,6 +97,9 @@ class RunConfig(_Strict):
   n_examples: int | None = None
   # Smoke runs are for debugging only and are never reported.
   smoke: bool = False
+  # Answer parsing (cotfaith.parse): "tolerant" retries answers upstream's
+  # pattern rejects (pilot arm C, explain-then-predict only).
+  parser: Literal["upstream", "tolerant"] = "upstream"
 
   @property
   def is_qwen3(self) -> bool:
@@ -116,6 +119,9 @@ class RunConfig(_Strict):
     if not 0 < self.thinking_cap <= budget.UNCAPPED_LIMIT:
       raise ValueError(f"thinking_cap must lie in (0, {budget.UNCAPPED_LIMIT}]")
     prompts.include_explanations_in_fewshot(self.template, self.demos)  # Raises if invalid.
+    if self.parser == "tolerant" and (self.template is not prompts.Template.EXPLAIN_THEN_PREDICT
+                                      or not self.pilot):
+      raise ValueError("the tolerant parser is for pilot explain-then-predict runs")
     if self.template is prompts.Template.PREDICT_ONLY and self.length != "empty":
       raise ValueError("length instructions need a template with an explanation")
     if self.thinking and not self.is_qwen3:
@@ -155,6 +161,8 @@ class RunConfig(_Strict):
     parts = [self.template.value, self.demos.value, self.length]
     parts.append("think" if self.thinking else "nothink")
     parts.append(f"{self.decoding.mode}{self.decoding.n}")
+    if self.parser != "upstream":
+      parts.append(self.parser)
     return "-".join(parts)
 
   def results_dir(self, root: str | pathlib.Path) -> pathlib.Path:

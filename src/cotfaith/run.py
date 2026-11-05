@@ -192,7 +192,7 @@ class Runner:
   def _answer_fields(self, answer_ids: list[int], o: Output, step_offset: int) -> dict:
     """Parse the answer tokens; label probabilities at the label token."""
     text = self.tok.decode(answer_ids, skip_special_tokens=True)
-    ans = parse.parse_answer(self.spec, self.cfg.template, text)
+    ans = parse.parse_answer(self.spec, self.cfg.template, text, tolerant=self.cfg.parser == "tolerant")
     probs, idx = None, None
     if ans.label is not None:
       idx = label_token_index(self.tok, answer_ids, text, ans.label_start)

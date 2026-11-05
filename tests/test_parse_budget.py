@@ -125,3 +125,40 @@ def test_forced_answer_prompt_and_trace_at():
   assert prompt == "P|" + decode([START, 100, 101, 102]) + budget.EARLY_EXIT
   assert budget.trace_at(generated, span, 3, decode) == "t100 t101 t102"
   assert budget.EARLY_EXIT.endswith("</think>.\n\n")
+
+
+COMVE = datasets.get_spec("comve")
+TOLERANT_CASES = [
+    # Upstream rejects these (explanation over several lines; full stop or bold after the label).
+    ("EXPLANATION:  \nBoth are odd.  \n\nFALSE SENTENCE: 1", "1", "  \nBoth are odd."),
+    ("EXPLANATION: The false one is 0. FALSE SENTENCE: 0.", "0", " The false one is 0."),
+    ("EXPLANATION: x\n**FALSE SENTENCE:** 1**\nNote: more text.", "1", " x"),
+    # Still failures: the label is not alone on its line.
+    ("EXPLANATION: x\nFALSE SENTENCE: 10", None, None),
+    ("EXPLANATION: x\nFALSE SENTENCE: 0 because y", None, None),
+    ("EXPLANATION:  \nEXPLANATION:  \nEXPLANATION:", None, None),
+]
+
+
+@pytest.mark.parametrize("text,label,explanation", TOLERANT_CASES)
+def test_tolerant_parser(text, label, explanation):
+  ans = parse.parse_answer(COMVE, Template.EXPLAIN_THEN_PREDICT, text, tolerant=True)
+  assert ans.label == label
+  if label is not None:
+    assert ans.explanation == explanation and text[ans.label_start] == label
+  assert parse.parse_answer(COMVE, Template.EXPLAIN_THEN_PREDICT, text).label is None
+
+
+@pytest.mark.parametrize("template,text", [c for c in COMPLETIONS if c[0] is Template.EXPLAIN_THEN_PREDICT])
+def test_tolerant_parser_agrees_where_upstream_parses(template, text):
+  ours = parse.parse_answer(ESNLI, template, text)
+  tolerant = parse.parse_answer(ESNLI, template, text, tolerant=True)
+  if ours.label is not None:
+    assert tolerant == ours
+  else:  # Upstream reads one line of explanation only; the fallback reads both paragraphs.
+    assert tolerant.label == "contradiction" and tolerant.explanation == " Para one.\n\nPara two."
+
+
+def test_tolerant_parser_only_for_explain_then_predict():
+  with pytest.raises(ValueError):
+    parse.parse_answer(ESNLI, Template.PREDICT_THEN_EXPLAIN, COMPLETIONS[0][1], tolerant=True)
