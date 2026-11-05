@@ -927,3 +927,20 @@ ep-labels_only-concise-nothink-sample3-tolerant example 554: 72 rows in 31s
 ep-labels_only-concise-nothink-sample3-tolerant example 28: 72 rows in 33s
 ep-labels_only-concise-nothink-sample3-tolerant example 479: 72 rows in 33s
 ep-labels_only-concise-nothink-sample3-tolerant example 697: 72 rows in 32s
+ep-labels_only-concise-nothink-sample3-tolerant example 1513: 72 rows in 49s
+ep-labels_only-concise-nothink-sample3-tolerant example 1185: 72 rows in 30s
+ep-labels_only-concise-nothink-sample3-tolerant example 526: 72 rows in 34s
+ep-labels_only-concise-nothink-sample3-tolerant example 646: 72 rows in 35s
+ep-labels_only-concise-nothink-sample3-tolerant example 715: 72 rows in 48s
+ep-labels_only-concise-nothink-sample3-tolerant example 1605: 72 rows in 49s
+ep-labels_only-concise-nothink-sample3-tolerant example 1579: 72 rows in 33s
+ep-labels_only-concise-nothink-sample3-tolerant example 108: 72 rows in 78s
+ep-labels_only-concise-nothink-sample3-tolerant example 1760: 72 rows in 47s
+ep-labels_only-concise-nothink-sample3-tolerant example 552: 72 rows in 46s
+ep-labels_only-concise-nothink-sample3-tolerant example 506: 72 rows in 50s
+== done C3A_concise.yaml in 27.1 min
+== C3A_very_concise.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<02:02,  2.53it/s]Loading weights:  54%|█████▍    | 169/311 [00:00<00:00, 446.64it/s]Loading weights:  86%|████████▌ | 267/311 [00:00<00:00, 523.79it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 437.71it/s]
+ep-labels_only-very_concise-nothink-sample3-tolerant example 1439: 72 rows in 28s
+ep-labels_only-very_concise-nothink-sample3-tolerant example 161: 72 rows in 48s
+ep-labels_only-very_concise-nothink-sample3-tolerant example 1770: 72 rows in 32s
