@@ -641,3 +641,87 @@ ep-with_explanations-comprehensive-nothink-greedy1-tolerant example 479: 24 rows
 ep-with_explanations-comprehensive-nothink-greedy1-tolerant example 697: 24 rows in 8s
 ep-with_explanations-comprehensive-nothink-greedy1-tolerant example 1513: 24 rows in 7s
 ep-with_explanations-comprehensive-nothink-greedy1-tolerant example 1185: 24 rows in 7s
+ep-with_explanations-comprehensive-nothink-greedy1-tolerant example 526: 24 rows in 6s
+ep-with_explanations-comprehensive-nothink-greedy1-tolerant example 646: 24 rows in 11s
+ep-with_explanations-comprehensive-nothink-greedy1-tolerant example 715: 24 rows in 12s
+ep-with_explanations-comprehensive-nothink-greedy1-tolerant example 1605: 24 rows in 6s
+ep-with_explanations-comprehensive-nothink-greedy1-tolerant example 1579: 24 rows in 13s
+ep-with_explanations-comprehensive-nothink-greedy1-tolerant example 108: 24 rows in 6s
+ep-with_explanations-comprehensive-nothink-greedy1-tolerant example 1760: 24 rows in 9s
+ep-with_explanations-comprehensive-nothink-greedy1-tolerant example 552: 24 rows in 9s
+ep-with_explanations-comprehensive-nothink-greedy1-tolerant example 506: 24 rows in 13s
+== done C1_ep_with_explanations_comprehensive.yaml in 6.5 min
+== C1_ep_with_explanations_concise.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<01:56,  2.66it/s]Loading weights:  50%|█████     | 156/311 [00:00<00:00, 421.87it/s]Loading weights:  78%|███████▊  | 243/311 [00:00<00:00, 469.07it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 408.61it/s]
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1439: 24 rows in 11s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 161: 24 rows in 7s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1770: 24 rows in 6s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1198: 24 rows in 6s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1818: 24 rows in 6s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1027: 24 rows in 11s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 762: 24 rows in 6s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 877: 24 rows in 12s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 68: 24 rows in 7s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 687: 24 rows in 6s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1344: 24 rows in 8s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 583: 24 rows in 5s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 968: 24 rows in 6s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1642: 24 rows in 6s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1993: 24 rows in 7s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1956: 24 rows in 8s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 812: 24 rows in 8s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 746: 24 rows in 5s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 607: 24 rows in 5s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1531: 24 rows in 7s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1984: 24 rows in 6s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 926: 24 rows in 5s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 56: 24 rows in 10s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1860: 24 rows in 6s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 216: 24 rows in 7s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 554: 24 rows in 5s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 28: 24 rows in 7s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 479: 24 rows in 7s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 697: 24 rows in 4s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1513: 24 rows in 6s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1185: 24 rows in 6s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 526: 24 rows in 6s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 646: 24 rows in 8s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 715: 24 rows in 9s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1605: 24 rows in 7s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1579: 24 rows in 11s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 108: 24 rows in 6s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 1760: 24 rows in 5s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 552: 24 rows in 7s
+ep-with_explanations-concise-nothink-greedy1-tolerant example 506: 24 rows in 13s
+== done C1_ep_with_explanations_concise.yaml in 4.8 min
+== C1_ep_with_explanations_empty.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<02:49,  1.83it/s]Loading weights:  71%|███████▏  | 222/311 [00:00<00:00, 457.30it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 386.83it/s]
+ep-with_explanations-empty-nothink-greedy1-tolerant example 1439: 24 rows in 11s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 161: 24 rows in 6s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 1770: 24 rows in 7s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 1198: 24 rows in 5s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 1818: 24 rows in 5s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 1027: 24 rows in 10s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 762: 24 rows in 5s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 877: 24 rows in 9s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 68: 24 rows in 7s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 687: 24 rows in 6s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 1344: 24 rows in 9s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 583: 24 rows in 7s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 968: 24 rows in 9s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 1642: 24 rows in 6s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 1993: 24 rows in 6s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 1956: 24 rows in 9s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 812: 24 rows in 10s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 746: 24 rows in 5s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 607: 24 rows in 5s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 1531: 24 rows in 6s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 1984: 24 rows in 9s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 926: 24 rows in 5s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 56: 24 rows in 10s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 1860: 24 rows in 5s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 216: 24 rows in 7s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 554: 24 rows in 5s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 28: 24 rows in 8s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 479: 24 rows in 7s
+ep-with_explanations-empty-nothink-greedy1-tolerant example 697: 24 rows in 4s
