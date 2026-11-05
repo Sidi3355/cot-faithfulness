@@ -297,3 +297,19 @@ po-labels_only-empty-think-sample3 example 552: 360 rows in 1242s
   example 506: traces for 24/24 items
 po-labels_only-empty-think-sample3 example 506: 360 rows in 1261s
 == done C2_thinking.yaml in 526.5 min
+== session 2026-11-05T13:59:15Z
+== C2_thinking.yaml
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<04:23,  1.18it/s]Loading weights:  58%|█████▊    | 180/311 [00:00<00:00, 255.01it/s]Loading weights:  89%|████████▉ | 277/311 [00:01<00:00, 286.41it/s]Loading weights: 100%|██████████| 311/311 [00:01<00:00, 231.72it/s]
+== done C2_thinking.yaml in 0.1 min
+== C3A_very_comprehensive.yaml
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<02:51,  1.81it/s]Loading weights:  68%|██████▊   | 210/311 [00:00<00:00, 429.14it/s]Loading weights: 100%|██████████| 311/311 [00:00<00:00, 374.86it/s]
+ep-labels_only-very_comprehensive-nothink-sample3-tolerant example 1439: 72 rows in 62s
+ep-labels_only-very_comprehensive-nothink-sample3-tolerant example 161: 72 rows in 67s
+ep-labels_only-very_comprehensive-nothink-sample3-tolerant example 1770: 72 rows in 43s
+ep-labels_only-very_comprehensive-nothink-sample3-tolerant example 1198: 72 rows in 46s
+ep-labels_only-very_comprehensive-nothink-sample3-tolerant example 1818: 72 rows in 59s
+ep-labels_only-very_comprehensive-nothink-sample3-tolerant example 1027: 72 rows in 46s
+ep-labels_only-very_comprehensive-nothink-sample3-tolerant example 762: 72 rows in 45s
+ep-labels_only-very_comprehensive-nothink-sample3-tolerant example 877: 72 rows in 106s
+ep-labels_only-very_comprehensive-nothink-sample3-tolerant example 68: 72 rows in 40s

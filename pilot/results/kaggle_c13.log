@@ -391,3 +391,25 @@ Traceback (most recent call last):
     self.values = self.values.repeat_interleave(repeats, dim=0)
                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
 torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 74.00 MiB. GPU 1 has a total capacity of 14.56 GiB of which 18.81 MiB is free. Including non-PyTorch memory, this process has 14.54 GiB memory in use. Of the allocated memory 10.93 GiB is allocated by PyTorch, and 3.49 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+== session 2026-11-05T13:59:15Z
+== C1_ep_labels_only_comprehensive.yaml
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]Loading weights:   0%|          | 1/311 [00:00<04:30,  1.15it/s]Loading weights:   1%|          | 2/311 [00:00<02:09,  2.39it/s]Loading weights:  58%|█████▊    | 181/311 [00:01<00:00, 292.89it/s]Loading weights:  81%|████████  | 252/311 [00:01<00:00, 315.39it/s]Loading weights: 100%|█████████▉| 310/311 [00:01<00:00, 327.12it/s]Loading weights: 100%|██████████| 311/311 [00:01<00:00, 214.95it/s]
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 1439: 24 rows in 41s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 161: 24 rows in 10s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 1770: 24 rows in 11s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 1198: 24 rows in 14s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 1818: 24 rows in 16s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 1027: 24 rows in 73s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 762: 24 rows in 4s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 877: 24 rows in 99s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 68: 24 rows in 80s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 687: 24 rows in 13s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 1344: 24 rows in 5s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 583: 24 rows in 5s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 968: 24 rows in 11s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 1642: 24 rows in 75s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 1993: 24 rows in 12s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 1956: 24 rows in 12s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 812: 24 rows in 46s
+ep-labels_only-comprehensive-nothink-greedy1-tolerant example 746: 24 rows in 11s
