@@ -1,0 +1,5 @@
+cell,f_auroc,f_auroc_lo,f_auroc_hi
+pe | with_explanations,0.7622,0.6574,0.8773
+pe | labels_only,0.8690,0.8394,0.8984
+ep | with_explanations,0.5774,0.5266,0.6662
+ep | labels_only,0.5643,0.5177,0.6910

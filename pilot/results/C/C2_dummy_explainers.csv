@@ -1,0 +1,11 @@
+budget,explainer,tpr_ct,fpr,phi_cct,f_auroc_single_point
+128,copier (always mentions),1.0000,1.0000,,0.5000
+128,random (q = 0.280),0.2803,0.2617,0.0195,0.5093
+256,copier (always mentions),1.0000,1.0000,,0.5000
+256,random (q = 0.633),0.6355,0.6129,0.0228,0.5113
+512,copier (always mentions),1.0000,1.0000,,0.5000
+512,random (q = 0.844),0.8454,0.8033,0.0542,0.5211
+1024,copier (always mentions),1.0000,1.0000,,0.5000
+1024,random (q = 0.920),0.9243,0.9305,-0.0120,0.5000
+uncapped,copier (always mentions),1.0000,1.0000,,0.5000
+uncapped,random (q = 0.930),0.9354,0.9345,0.0018,0.5004
