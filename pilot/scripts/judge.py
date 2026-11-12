@@ -9,7 +9,7 @@ Usage: python pilot/scripts/judge.py [--n-examples 200]
 Outputs:
   data/pilot/judge/<example_id>.parquet      scores for every candidate
   data/pilot/natural_comve.parquet           frozen interventions (+ .sha256)
-  pilot/results/interventions.csv            the same, for review
+  pilot/results/interventions/interventions.csv   the same, for review
 """
 
 import argparse
@@ -79,7 +79,7 @@ def main() -> None:
   natural.to_parquet(out)
   digest = hashlib.sha256(out.read_bytes()).hexdigest()
   out.with_suffix(".sha256").write_text(digest + "\n")
-  review = ROOT / "pilot" / "results" / "interventions.csv"
+  review = ROOT / "pilot" / "results" / "interventions" / "interventions.csv"
   review.parent.mkdir(parents=True, exist_ok=True)
   natural[["data_idx", "intervention_idx", "modified_sentence_key", "inserted_word", "inserted_position",
            "sent0", "sent1", "intervention_naturalness_yes_prob"]].to_csv(review, index=False)

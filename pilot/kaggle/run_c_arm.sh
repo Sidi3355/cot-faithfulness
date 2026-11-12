@@ -44,11 +44,12 @@ else
 fi
 mkdir -p data/pilot/raw "$RES/pilot/results/raw"
 cp -a "$RES/pilot/results/raw/." data/pilot/raw/          # Resume from earlier sessions.
-cp "$RES"/pilot/results/kaggle_*.log pilot/logs/ 2> /dev/null || true  # Logs are appended to.
+cp "$RES"/pilot/results/kaggle_*.log "$RES"/pilot/results/logs/kaggle_*.log pilot/logs/ 2> /dev/null || true  # Appended to.
 
 push_results() {
   cp -a data/pilot/raw/. "$RES/pilot/results/raw/"
-  cp pilot/logs/kaggle_*.log "$RES/pilot/results/" 2> /dev/null || true
+  mkdir -p "$RES/pilot/results/logs"
+  cp pilot/logs/kaggle_*.log "$RES/pilot/results/logs/" 2> /dev/null || true
   git -C "$RES" add -f pilot/results
   git -C "$RES" commit -q -m "Pilot arm C results from Kaggle ($(date -u +%FT%TZ))" > /dev/null || true
   git -C "$RES" push -q origin "HEAD:$RESULTS_BRANCH" || echo "push failed; will retry"

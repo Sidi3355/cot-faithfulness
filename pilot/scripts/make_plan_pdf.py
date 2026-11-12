@@ -197,15 +197,17 @@ story = [
     p("6. Output folder: pilot/results/", H2),
     table([
         ["Path", "Contents"],
-        ["interventions.csv", "Every kept intervention: example, sentence, inserted word, position, judge score."],
-        ["R/*.csv, R/*.png", "Per model x length: accuracy, flip rate, mention rate, TPR (CT), FPR, "
+        ["README.md, NOTES.md", "A guide to every file and column, and plain-language notes on each run and test."],
+        ["interventions/", "Every kept intervention: example, sentence, inserted word, position, judge score."],
+        ["R_replication/", "Per model x length: accuracy, flip rate, mention rate, TPR (CT), FPR, "
          "phi-CCT, CCT with CIs; F-AUROC; F1/F2 paired differences; F3 R-squared; pre-pilot sample "
-         "size table; empty paper-comparison table; figures."],
-        ["C/*.csv, C/*.png", "The same metrics for C1, C2 (per budget) and C3; noise floors; dummy "
-         "explainers; copy rates; failure sensitivity; curve test; regression; figures."],
+         "size table; comparison with the paper's figures; figures."],
+        ["C_chain_of_thought/", "C1_explanations/, C2_thinking_traces/ (per budget) and "
+         "C3_trace_vs_explanation/: the same metrics; noise floors; dummy explainers; copy rates; "
+         "failure sensitivity; curve test; regression; figures."],
         ["raw/", "One row per model output (prompt id, completion, trace, label, probabilities, E, I), "
          "so every number can be recomputed without rerunning models."],
-        ["run_log.csv", "Every run: config, model revision, package versions, timings, failure counts."],
+        ["logs/", "Every run: config, model revision, package versions, timings; Kaggle logs."],
     ], [32, 138]),
 
     p("7. Compared with the full plan", H2),

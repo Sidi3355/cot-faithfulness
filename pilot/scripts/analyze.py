@@ -4,7 +4,7 @@ Usage:
   python pilot/scripts/analyze.py prepilot   # arm R sample-size table (after the 20-example pre-pilot)
   python pilot/scripts/analyze.py r          # arm R tables and figures
   python pilot/scripts/analyze.py c          # arm C tables and figures
-Writes CSV and PNG files to pilot/results/{R,C}/.
+Writes CSV and PNG files to pilot/results/ (see pilot/results/README.md for the layout).
 """
 
 import argparse
@@ -22,8 +22,16 @@ from cotfaith import analysis, bootstrap, config, datasets, flips, interventions
 from cotfaith import rows as rows_lib  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-RAW = ROOT / "data" / "pilot" / "raw"  # Live runner output (synced to pilot/results/raw).
+# Live runner output; a fresh clone has only the committed copy in pilot/results/raw.
+RAW = next((p for p in (ROOT / "data" / "pilot" / "raw", ROOT / "pilot" / "results" / "raw") if p.exists()),
+           ROOT / "data" / "pilot" / "raw")
 OUT = ROOT / "pilot" / "results"
+# Output folders, relative to OUT.
+R_DIR = "R_replication"
+C1_DIR = "C_chain_of_thought/C1_explanations"
+C2_DIR = "C_chain_of_thought/C2_thinking_traces"
+C3_DIR = "C_chain_of_thought/C3_trace_vs_explanation"
+LOG_DIR = "logs"
 CONFIGS = ROOT / "pilot" / "configs"
 INTERVENTIONS = ROOT / "pilot" / "interventions" / "natural_comve.parquet"
 SPEC = datasets.COMVE
@@ -32,8 +40,23 @@ R_LENGTHS = ("very_concise", "empty", "very_comprehensive")  # Arm R uses three 
 BUDGETS = ("128", "256", "512", "1024", "uncapped")
 R_MODELS = ("Qwen/Qwen2.5-0.5B-Instruct", "Qwen/Qwen2.5-1.5B-Instruct", "Qwen/Qwen2.5-3B-Instruct")
 CELL_METRICS = ("accuracy", "flip_rate", "mention_rate", "tpr_ct", "fpr", "phi_cct", "cct")
-N_CANDIDATES = (50, 100, 150)  # 167 examples were judged (see pilot/results/interventions_meta.json).
+N_CANDIDATES = (50, 100, 150)  # 167 examples were judged (see pilot/results/interventions/interventions_meta.json).
 TARGET_HALF_WIDTH = 0.05
+# Siegel et al. (2025, arXiv:2503.13445v2), ComVE, Qwen2.5-Instruct with example explanations
+# ("IT-exp"). The paper gives per-model values only in figures, so these are read off them
+# (about +/- 0.02). Fig. 9 shows predict-then-explain TPR/FPR at its 5 length instructions
+# (points not labelled by length): min and max. Fig. 10 shows phi-CCT averaged over both
+# explanation orders and all 5 lengths: one value.
+PAPER_COMVE = {
+    "Qwen2.5-0.5B-Instruct": {"tpr_ct": (0.27, 0.31), "fpr": (0.24, 0.27), "phi_cct": (0.00, 0.00)},
+    "Qwen2.5-1.5B-Instruct": {"tpr_ct": (0.24, 0.29), "fpr": (0.09, 0.17), "phi_cct": (0.20, 0.20)},
+    "Qwen2.5-3B-Instruct": {"tpr_ct": (0.13, 0.30), "fpr": (0.07, 0.23), "phi_cct": (0.08, 0.08)},
+}
+PAPER_SOURCE = {
+    "tpr_ct": "Fig. 9 (PE, 5 lengths; read off figure)",
+    "fpr": "Fig. 9 (PE, 5 lengths; read off figure)",
+    "phi_cct": "Fig. 10 (mean of PE and EP, 5 lengths; read off figure)",
+}
 
 
 # Loading -----------------------------------------------------------------------
@@ -149,7 +172,7 @@ def prepilot(data: Data) -> None:
   ok = [n for n in N_CANDIDATES if (table[f"projected_half_width_N{n}"] <= TARGET_HALF_WIDTH).all()]
   chosen = ok[0] if ok else max(N_CANDIDATES)
   table["chosen_N"] = chosen
-  write(table, OUT / "R" / "prepilot_sample_size.csv")
+  write(table, OUT / R_DIR / "prepilot_sample_size.csv")
   print("chosen N:", chosen)
 
 
@@ -177,7 +200,7 @@ def arm_r(data: Data) -> None:
       cells.append(summary)
       dists[model, length], blocks[model, length] = dist, block
   cells_df = pd.DataFrame(cells)
-  write(cells_df, OUT / "R" / "cells.csv")
+  write(cells_df, OUT / R_DIR / "cells.csv")
 
   # F-AUROC per model across the five lengths.
   fa_rows, fa_dists = [], {}
@@ -186,7 +209,7 @@ def arm_r(data: Data) -> None:
       row, dist = f_auroc_row(short(model), [blocks[model, l] for l in R_LENGTHS], boot)
       fa_rows.append(row)
       fa_dists[model] = dist
-  write(pd.DataFrame(fa_rows), OUT / "R" / "f_auroc.csv")
+  write(pd.DataFrame(fa_rows), OUT / R_DIR / "f_auroc.csv")
 
   # F1: very comprehensive minus very concise, TPR and FPR, per model.
   idx = {m: k for k, m in enumerate(CELL_METRICS)}
@@ -203,7 +226,7 @@ def arm_r(data: Data) -> None:
     for r, adj in zip(rows_m, bootstrap.holm([r["p_value"] for r in rows_m])):
       r["p_holm"] = adj
     f1.extend(rows_m)
-  write(pd.DataFrame(f1), OUT / "R" / "F1_verbosity.csv")
+  write(pd.DataFrame(f1), OUT / R_DIR / "F1_verbosity.csv")
 
   # F2: larger minus smaller model, at the no-instruction length, and F-AUROC.
   pairs = [(R_MODELS[1], R_MODELS[0]), (R_MODELS[2], R_MODELS[1]), (R_MODELS[2], R_MODELS[0])]
@@ -228,32 +251,33 @@ def arm_r(data: Data) -> None:
   for r, adj in zip(rows_m, bootstrap.holm([r["p_value"] for r in rows_m])):
     r["p_holm"] = adj
   f2.extend(rows_m)
-  write(pd.DataFrame(f2), OUT / "R" / "F2_scale.csv")
+  write(pd.DataFrame(f2), OUT / R_DIR / "F2_scale.csv")
 
   # F3: phi-CCT against CCT across all cells.
   valid = cells_df.dropna(subset=["phi_cct", "cct"])
   r2 = float(np.corrcoef(valid["phi_cct"], valid["cct"])[0, 1] ** 2) if len(valid) > 2 else float("nan")
   write(pd.DataFrame([{"n_cells": len(valid), "r_squared": r2,
                        "pearson_r": float(np.corrcoef(valid["phi_cct"], valid["cct"])[0, 1])}]),
-        OUT / "R" / "F3_phi_vs_cct.csv")
+        OUT / R_DIR / "F3_phi_vs_cct.csv")
 
-  # Comparison with the paper (paper columns filled in once the paper text is available).
+  # Comparison with the paper on ComVE: our range over arm R's 3 lengths vs PAPER_COMVE.
   comp = []
   for model in R_MODELS:
-    for metric in ("phi_cct", "tpr_ct", "cct", "accuracy"):
-      sel = cells_df[(cells_df.model == short(model)) & (cells_df.length == "empty")]
-      if not sel.empty:
-        r = sel.iloc[0]
-        comp.append({"model": short(model), "metric": metric, "ours": r[metric], "ours_lo": r[f"{metric}_lo"],
-                     "ours_hi": r[f"{metric}_hi"], "paper": None, "paper_within_our_ci": None})
-  write(pd.DataFrame(comp), OUT / "R" / "paper_comparison.csv")
+    ours = cells_df[cells_df.model == short(model)]
+    for metric, (p_lo, p_hi) in PAPER_COMVE[short(model)].items():
+      if ours.empty:
+        continue
+      comp.append({"model": short(model), "metric": metric, "ours_min": ours[metric].min(),
+                   "ours_max": ours[metric].max(), "paper_min": p_lo, "paper_max": p_hi,
+                   "paper_source": PAPER_SOURCE[metric]})
+  write(pd.DataFrame(comp), OUT / R_DIR / "paper_comparison.csv")
 
   # Figures.
   fig, axes = plt.subplots(1, len(R_MODELS), figsize=(4 * len(R_MODELS), 4), sharey=True)
   for ax, model in zip(np.atleast_1d(axes), R_MODELS):
     sel = cells_df[cells_df.model == short(model)].set_index("length").reindex(R_LENGTHS)
     _tpr_fpr_plot(ax, sel["fpr"], sel["tpr_ct"], R_LENGTHS, short(model))
-  fig.tight_layout(); fig.savefig(OUT / "R" / "tpr_fpr_by_length.png", dpi=150); plt.close(fig)
+  fig.tight_layout(); fig.savefig(OUT / R_DIR / "tpr_fpr_by_length.png", dpi=150); plt.close(fig)
 
   fig, axes = plt.subplots(1, 3, figsize=(12, 3.6))
   sizes = [models.get(m).params for m in R_MODELS]
@@ -262,12 +286,12 @@ def arm_r(data: Data) -> None:
     ax.errorbar(sizes, sel[metric], yerr=[sel[metric] - sel[f"{metric}_lo"], sel[f"{metric}_hi"] - sel[metric]],
                 marker="o", capsize=3)
     ax.set_xscale("log"); ax.set_xlabel("parameters"); ax.set_title(f"{metric} (no length instruction)")
-  fig.tight_layout(); fig.savefig(OUT / "R" / "metrics_by_size.png", dpi=150); plt.close(fig)
+  fig.tight_layout(); fig.savefig(OUT / R_DIR / "metrics_by_size.png", dpi=150); plt.close(fig)
 
   fig, ax = plt.subplots(figsize=(4, 4))
   ax.scatter(valid["phi_cct"], valid["cct"])
   ax.set_xlabel("phi-CCT"); ax.set_ylabel("CCT"); ax.set_title(f"R² = {r2:.3f} ({len(valid)} cells)")
-  fig.tight_layout(); fig.savefig(OUT / "R" / "phi_vs_cct.png", dpi=150); plt.close(fig)
+  fig.tight_layout(); fig.savefig(OUT / R_DIR / "phi_vs_cct.png", dpi=150); plt.close(fig)
 
 
 def _tpr_fpr_plot(ax, fpr, tpr, labels, title):
@@ -291,7 +315,7 @@ def _tpr_fpr_plot(ax, fpr, tpr, labels, title):
 
 def arm_c(data: Data) -> None:
   boot = universe(cfg_named("C2_thinking").n_examples)
-  out = OUT / "C"
+  c1_out, c2_out, c3_out = OUT / C1_DIR, OUT / C2_DIR, OUT / C3_DIR
 
   # C1: greedy explanation baseline, 20 conditions.
   c1, c1_blocks = [], {}
@@ -309,13 +333,13 @@ def arm_c(data: Data) -> None:
         c1.append(summary)
         c1_blocks[template, demos, length] = block
   c1_df = pd.DataFrame(c1)
-  write(c1_df, out / "C1_cells.csv")
+  write(c1_df, c1_out / "C1_cells.csv")
   fa = []
   for template in ("pe", "ep"):
     for demos in ("with_explanations", "labels_only"):
       if all((template, demos, l) in c1_blocks for l in LENGTHS):
         fa.append(f_auroc_row(f"{template} | {demos}", [c1_blocks[template, demos, l] for l in LENGTHS], boot)[0])
-  write(pd.DataFrame(fa), out / "C1_f_auroc.csv")
+  write(pd.DataFrame(fa), c1_out / "C1_f_auroc.csv")
 
   # C2 / cell B: thinking traces, per budget.
   c2_rows = data.load(cfg_named("C2_thinking"))
@@ -340,13 +364,13 @@ def arm_c(data: Data) -> None:
                    "copy_copied_mean": float(real["copy_copied"].mean()),
                    "E_paper_minus_E_novel": float((real["E_paper"] - real["E_novel"]).mean())})
     failures.append(_failures(rows, b, boot))
-  write(pd.DataFrame(c2), out / "C2_cells_by_budget.csv")
+  write(pd.DataFrame(c2), c2_out / "C2_cells_by_budget.csv")
   if all(b in c2_blocks for b in BUDGETS):
     write(pd.DataFrame([f_auroc_row("thinking traces (budgets)", [c2_blocks[b] for b in BUDGETS], boot)[0]]),
-          out / "C2_f_auroc.csv")
-  write(pd.DataFrame(dummies), out / "C2_dummy_explainers.csv")
-  write(pd.DataFrame(copies), out / "C2_copy_rates.csv")
-  write(pd.DataFrame(failures), out / "C2_failure_sensitivity.csv")
+          c2_out / "C2_f_auroc.csv")
+  write(pd.DataFrame(dummies), c2_out / "C2_dummy_explainers.csv")
+  write(pd.DataFrame(copies), c2_out / "C2_copy_rates.csv")
+  write(pd.DataFrame(failures), c2_out / "C2_failure_sensitivity.csv")
 
   # C3: cell A (explanations, thinking off, sampled) and cell R (reference).
   c3a, c3a_blocks, c3a_rows_by_len = [], {}, {}
@@ -360,16 +384,16 @@ def arm_c(data: Data) -> None:
     c3a.append(summary)
     c3a_blocks[length] = block
     c3a_rows_by_len[length] = rows
-  write(pd.DataFrame(c3a), out / "C3A_cells.csv")
+  write(pd.DataFrame(c3a), c3_out / "C3A_cells.csv")
   if all(l in c3a_blocks for l in LENGTHS):
     write(pd.DataFrame([f_auroc_row("cell A (lengths)", [c3a_blocks[l] for l in LENGTHS], boot)[0]]),
-          out / "C3A_f_auroc.csv")
+          c3_out / "C3A_f_auroc.csv")
   r_rows = data.load(cfg_named("C3R"))
   if not r_rows.empty:
     acc = boot.align(flips.per_example_accuracy(r_rows[r_rows.row_type == "base"], "correct"))
     real = r_rows[r_rows.row_type == "real"]
     write(pd.DataFrame([{"cell": "R (thinking off, label only)", "accuracy": metrics.accuracy(acc.sum(0)),
-                         "flip_rate": float(real["I"].mean()), **_floors(r_rows, boot)}]), out / "C3R_reference.csv")
+                         "flip_rate": float(real["I"].mean()), **_floors(r_rows, boot)}]), c3_out / "C3R_reference.csv")
 
   # Trace (cell B) vs explanation (cell A) at matched accuracy.
   if c3a_blocks and c2_blocks:
@@ -380,7 +404,7 @@ def arm_c(data: Data) -> None:
       t = analysis.curve_test(off, on, boot, isotonic=iso)
       res.append({"fit": "isotonic" if iso else "ols", "delta": t.estimate, "lo": t.ci[0], "hi": t.ci[1],
                   "p_value": t.p_value, "undefined_fraction": t.undefined_fraction})
-    write(pd.DataFrame(res), out / "trace_vs_explanation_curve_test.csv")
+    write(pd.DataFrame(res), c3_out / "trace_vs_explanation_curve_test.csv")
     reg_rows = []
     if "empty" in c3a_rows_by_len:
       a = c3a_rows_by_len["empty"]
@@ -396,8 +420,8 @@ def arm_c(data: Data) -> None:
       g = analysis.interaction_gee(data_reg.assign(log10_params=0.0), formula="E ~ I * mode + base_correct")
       write(pd.DataFrame([{"coefficient": "I:mode", "estimate": g.coef, "lo": g.ci[0], "hi": g.ci[1],
                            "p_value": g.p_value, "n_rows": g.n_rows, "n_clusters": g.n_clusters}]),
-            out / "trace_vs_explanation_regression.csv")
-    _figures_c(c3a, c2, out)
+            c3_out / "trace_vs_explanation_regression.csv")
+    _figures_c(c3a, c2, c2_out, c3_out)
 
 
 def _point_stats(block: np.ndarray) -> np.ndarray:
@@ -451,14 +475,15 @@ def _failures(rows: pd.DataFrame, budget: str, boot) -> dict:
   return out
 
 
-def _figures_c(c3a, c2, out):
+def _figures_c(c3a, c2, c2_out, c3_out):
   a, b = pd.DataFrame(c3a), pd.DataFrame(c2)
+  c2_out.mkdir(parents=True, exist_ok=True); c3_out.mkdir(parents=True, exist_ok=True)
   fig, axes = plt.subplots(1, 2, figsize=(8, 4), sharey=True)
   if not a.empty:
     _tpr_fpr_plot(axes[0], a["fpr"], a["tpr_ct"], a["length"], "explanation (thinking off), by length")
   if not b.empty:
     _tpr_fpr_plot(axes[1], b["fpr"], b["tpr_ct"], b["budget"], "trace (thinking on), by budget")
-  fig.tight_layout(); fig.savefig(out / "tpr_fpr_explanation_vs_trace.png", dpi=150); plt.close(fig)
+  fig.tight_layout(); fig.savefig(c3_out / "tpr_fpr_explanation_vs_trace.png", dpi=150); plt.close(fig)
   fig, ax = plt.subplots(figsize=(5, 4))
   for frame, label, key in ((a, "explanation (lengths)", "length"), (b, "trace (budgets)", "budget")):
     if frame.empty:
@@ -469,13 +494,13 @@ def _figures_c(c3a, c2, out):
     for _, r in frame.iterrows():
       ax.annotate(str(r[key]), (r["accuracy"], r["phi_cct"]), fontsize=7, xytext=(3, 3), textcoords="offset points")
   ax.set_xlabel("base accuracy"); ax.set_ylabel("phi-CCT"); ax.legend(fontsize=8)
-  fig.tight_layout(); fig.savefig(out / "phi_vs_accuracy_trace_vs_explanation.png", dpi=150); plt.close(fig)
+  fig.tight_layout(); fig.savefig(c3_out / "phi_vs_accuracy_trace_vs_explanation.png", dpi=150); plt.close(fig)
   if not b.empty:
     fig, ax = plt.subplots(figsize=(5, 3.6))
     for m in ("tpr_ct", "fpr", "phi_cct"):
       ax.plot(b["budget"], b[m], marker="o", label=m)
     ax.set_xlabel("thinking budget"); ax.legend(fontsize=8)
-    fig.tight_layout(); fig.savefig(out / "trace_metrics_by_budget.png", dpi=150); plt.close(fig)
+    fig.tight_layout(); fig.savefig(c2_out / "trace_metrics_by_budget.png", dpi=150); plt.close(fig)
 
 
 def run_log() -> None:
@@ -491,7 +516,7 @@ def run_log() -> None:
                  "n_examples_done": 0 if timing is None else len(timing),
                  "n_rows": 0 if timing is None else int(timing["n_rows"].sum()),
                  "hours": 0 if timing is None else round(timing["seconds"].sum() / 3600, 2)})
-  write(pd.DataFrame(rows), OUT / "run_log.csv")
+  write(pd.DataFrame(rows), OUT / LOG_DIR / "run_log.csv")
 
 
 def main() -> None:

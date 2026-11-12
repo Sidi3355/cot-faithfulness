@@ -88,22 +88,30 @@ def test_analysis_end_to_end(tmp_path, monkeypatch, splits):
   analyze.arm_r(data)
   analyze.arm_c(data)
   out = tmp_path / "out"
-  prepilot = pd.read_csv(out / "R" / "prepilot_sample_size.csv")
+  prepilot = pd.read_csv(out / analyze.R_DIR / "prepilot_sample_size.csv")
   assert prepilot["chosen_N"].iloc[0] in analyze.N_CANDIDATES
-  cells = pd.read_csv(out / "R" / "cells.csv")
+  cells = pd.read_csv(out / analyze.R_DIR / "cells.csv")
   assert len(cells) == 9 and cells["phi_cct"].notna().all()  # 3 models x 3 lengths.
   assert (cells["phi_cct_lo"] <= cells["phi_cct"]).all() and (cells["phi_cct"] <= cells["phi_cct_hi"]).all()
   for f in ("f_auroc.csv", "F1_verbosity.csv", "F2_scale.csv", "F3_phi_vs_cct.csv", "paper_comparison.csv",
             "tpr_fpr_by_length.png", "metrics_by_size.png", "phi_vs_cct.png"):
-    assert (out / "R" / f).exists(), f
-  c2 = pd.read_csv(out / "C" / "C2_cells_by_budget.csv")
+    assert (out / analyze.R_DIR / f).exists(), f
+  c2 = pd.read_csv(out / analyze.C2_DIR / "C2_cells_by_budget.csv")
   assert list(c2["budget"].astype(str)) == ["128", "256", "512", "1024", "uncapped"]
   assert "excess_flip_rate" in c2
-  for f in ("C1_cells.csv", "C1_f_auroc.csv", "C2_f_auroc.csv", "C2_dummy_explainers.csv", "C2_copy_rates.csv",
-            "C2_failure_sensitivity.csv", "C3A_cells.csv", "C3A_f_auroc.csv", "C3R_reference.csv",
-            "trace_vs_explanation_curve_test.csv", "trace_vs_explanation_regression.csv",
-            "tpr_fpr_explanation_vs_trace.png", "phi_vs_accuracy_trace_vs_explanation.png"):
-    assert (out / "C" / f).exists(), f
-  dummies = pd.read_csv(out / "C" / "C2_dummy_explainers.csv")
+  expected = {
+      analyze.C1_DIR: ("C1_cells.csv", "C1_f_auroc.csv"),
+      analyze.C2_DIR: ("C2_f_auroc.csv", "C2_dummy_explainers.csv", "C2_copy_rates.csv",
+                       "C2_failure_sensitivity.csv", "trace_metrics_by_budget.png"),
+      analyze.C3_DIR: ("C3A_cells.csv", "C3A_f_auroc.csv", "C3R_reference.csv",
+                       "trace_vs_explanation_curve_test.csv", "trace_vs_explanation_regression.csv",
+                       "tpr_fpr_explanation_vs_trace.png", "phi_vs_accuracy_trace_vs_explanation.png"),
+  }
+  for folder, files in expected.items():
+    for f in files:
+      assert (out / folder / f).exists(), f
+  comp = pd.read_csv(out / analyze.R_DIR / "paper_comparison.csv")
+  assert len(comp) == 9 and comp["paper_min"].notna().all()  # 3 models x (CT, FPR, phi-CCT).
+  dummies = pd.read_csv(out / analyze.C2_DIR / "C2_dummy_explainers.csv")
   copier = dummies[dummies.explainer.str.startswith("copier")]
   assert (copier.tpr_ct == 1).all() and copier.phi_cct.isna().all()

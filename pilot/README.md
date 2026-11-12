@@ -2,7 +2,8 @@
 
 **The pilot that is being run is option A, described in [PILOT_PLAN.pdf](PILOT_PLAN.pdf).** It has
 two arms: a small-scale replication on Qwen2.5 0.5B, 1.5B and 3B, and the chain-of-thought pilot on
-Qwen3-0.6B. Results (tables, statistics and figures only) go to [`results/`](results/).
+Qwen3-0.6B. Results (tables, statistics and figures only) are in [`results/`](results/README.md);
+[`results/NOTES.md`](results/NOTES.md) explains each run and test.
 
 How it runs:
 
