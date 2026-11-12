@@ -1,0 +1,11 @@
+{
+  "judge": "Qwen/Qwen2.5-3B-Instruct",
+  "judge_revision": "aa8e72537993ba99e69dfaafa59ed015b17504d1",
+  "judge_dtype": "bfloat16",
+  "n_examples_judged": 167,
+  "n_candidates": 36740,
+  "keep_top_frac": 0.05,
+  "n_interventions": 1837,
+  "n_examples_with_interventions": 167,
+  "sha256": "8be3e524bfd83612f3ba1ac7bf291e5b15f90bb2a274d84d9c779b9c2ec9c06e"
+}

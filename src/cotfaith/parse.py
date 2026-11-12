@@ -7,6 +7,11 @@ upstream, an explanation is the rest of the line after "EXPLANATION:".
 
 With thinking on, only the text after the first `</think>` is parsed, because a
 trace can itself contain strings like "JUDGEMENT:".
+
+Pilot arm C's explain-then-predict runs use `tolerant=True`: an answer that
+upstream's pattern rejects is retried with one that lets the explanation span
+several lines and allows a full stop or bold markers after the label. Answers
+upstream's pattern accepts parse exactly as upstream.
 """
 
 import dataclasses
@@ -46,22 +51,43 @@ def completion_regex(spec: DatasetSpec, template: Template) -> re.Pattern[str]:
   return re.compile(pattern)
 
 
+@functools.cache
+def tolerant_regex(spec: DatasetSpec) -> re.Pattern[str]:
+  """Explain-then-predict fallback: multi-line explanation, then the label alone on its line."""
+  labels = "|".join(re.escape(l) for l in sorted(spec.class_labels, key=len, reverse=True))
+  line_end = f"{_SPACE_EXCEPT_NEWLINE}*" + r"(?:\*\*)?[.!]?(?:\*\*)?" + f"{_SPACE_EXCEPT_NEWLINE}*" + r"(?:\n|$)"
+  return re.compile(
+      ALLOWED_PREFIX + _maybe_bold(spec.explanation_prefix) + r"(?P<explanation>[\s\S]*?)\s+"
+      + _maybe_bold(spec.class_prefix) + r" ?(?P<pred_label>(?i:" + labels + r"))(?=" + line_end + ")"
+  )
+
+
 @dataclasses.dataclass(frozen=True)
 class Answer:
   label: str | None
   explanation: str | None
   error: str | None
+  # Character offset in `text` where the label group starts (upstream reads the
+  # label probabilities at the token containing it).
+  label_start: int | None = None
 
 
-def parse_answer(spec: DatasetSpec, template: Template, text: str) -> Answer:
+def parse_answer(spec: DatasetSpec, template: Template, text: str, tolerant: bool = False) -> Answer:
+  if tolerant and template is not Template.EXPLAIN_THEN_PREDICT:
+    raise ValueError("the tolerant parser is defined for explain-then-predict only")
   match = completion_regex(spec, template).match(text)
   if match is None:
-    return Answer(None, None, "no_match")
-  label = match.group("pred_label").lower().strip()
-  explanation = None if template is Template.PREDICT_ONLY else match.group("explanation")
-  if label not in spec.class_labels:
-    return Answer(None, explanation, "unknown_label")
-  return Answer(label, explanation, None)
+    upstream = Answer(None, None, "no_match")
+  else:
+    label = match.group("pred_label").lower().strip()
+    explanation = None if template is Template.PREDICT_ONLY else match.group("explanation")
+    if label in spec.class_labels:
+      return Answer(label, explanation, None, match.start("pred_label"))
+    upstream = Answer(None, explanation, "unknown_label")
+  if tolerant and (match := tolerant_regex(spec).match(text)) is not None:
+    return Answer(match.group("pred_label").lower(), match.group("explanation"), None,
+                  match.start("pred_label"))
+  return upstream
 
 
 @dataclasses.dataclass(frozen=True)

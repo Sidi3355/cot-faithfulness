@@ -1,0 +1,4 @@
+model,n_examples,n_interventions,n_flips,flip_rate,phi_cct,phi_cct_ci_half_width,projected_half_width_N50,projected_half_width_N100,projected_half_width_N150,chosen_N
+Qwen2.5-0.5B-Instruct,20,195,20,0.1026,0.0555,0.1530,0.0968,0.0684,0.0559,150
+Qwen2.5-1.5B-Instruct,20,220,11,0.0500,-0.0250,0.1943,0.1229,0.0869,0.0709,150
+Qwen2.5-3B-Instruct,20,220,44,0.2000,0.0437,0.1896,0.1199,0.0848,0.0692,150

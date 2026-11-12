@@ -4,7 +4,9 @@
 # Also downloads the WordNet corpus used for intervention words.
 #
 # Usage: scripts/fetch_data.sh [DATA_DIR]   (default: data)
+#   DATASETS="comve"  fetches only the listed parts (default: esnli ecqa comve wordnet).
 set -euo pipefail
+want() { [[ " ${DATASETS:-esnli ecqa comve wordnet} " == *" $1 "* ]]; }
 
 DATA_DIR="$(realpath -m "${1:-data}")"
 # Absolute path (without resolving the venv symlink), since we cd below.
@@ -18,15 +20,16 @@ clone_pinned() {  # url dir commit
   git -C "$DATA_DIR/$2" checkout -q "$3"
 }
 
-clone_pinned https://github.com/OanaMariaCamburu/e-SNLI.git \
+want esnli && clone_pinned https://github.com/OanaMariaCamburu/e-SNLI.git \
   e-SNLI 7b585a3f077fdea899780eb0473940522ae44a2e
-clone_pinned https://github.com/wangcunxiang/SemEval2020-Task4-Commonsense-Validation-and-Explanation.git \
+want comve && clone_pinned https://github.com/wangcunxiang/SemEval2020-Task4-Commonsense-Validation-and-Explanation.git \
   SemEval2020-Task4-Commonsense-Validation-and-Explanation c55b1a9e6cb66997675f85073e17a9522cf38c2c
-clone_pinned https://github.com/dair-iitd/ECQA-Dataset.git \
-  ECQA-Dataset 2ba8f0d3cf64ba5beb4605808ee1285c895af50d
 
 # ECQA ships explanations only; join them with CommonsenseQA using the
 # dataset's own script, as the upstream Dockerfile does.
+if want ecqa; then
+clone_pinned https://github.com/dair-iitd/ECQA-Dataset.git \
+  ECQA-Dataset 2ba8f0d3cf64ba5beb4605808ee1285c895af50d
 ECQA="$DATA_DIR/ECQA-Dataset"
 mkdir -p "$ECQA/cqa"
 for split in train_rand_split dev_rand_split; do
@@ -38,9 +41,11 @@ if [[ ! -f "$ECQA/cqa_data_test.csv" ]]; then
   # -I: don't put the dataset directory on sys.path.
   (cd "$ECQA" && "$PYTHON" -I generate_data.py > /dev/null)
 fi
+fi
 
 # WordNet 3.0, fetched directly at a pinned nltk_data commit and checksummed
 # (NLTK's own downloader refuses to run behind an egress proxy).
+if want wordnet; then
 WN_DIR="$DATA_DIR/nltk_data/corpora"
 WN_ZIP="$WN_DIR/wordnet.zip"
 WN_COMMIT=550b6625bcef1f2abff2ff770a5a0d272c9c6b2a
@@ -54,5 +59,6 @@ echo "$WN_SHA256  $WN_ZIP" | sha256sum -c --quiet
 unzip -q -o "$WN_ZIP" -d "$WN_DIR"
 # NLTK ignores corpus files that other accounts can write to.
 chmod -R go-w "$DATA_DIR/nltk_data"
+fi
 
 echo "Datasets ready in $DATA_DIR"

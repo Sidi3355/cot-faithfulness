@@ -1,0 +1,10 @@
+model,metric,ours_min,ours_max,paper_min,paper_max,paper_source
+Qwen2.5-0.5B-Instruct,tpr_ct,0.3231,0.3556,0.2700,0.3100,"Fig. 9 (PE, 5 lengths; read off figure)"
+Qwen2.5-0.5B-Instruct,fpr,0.2483,0.2568,0.2400,0.2700,"Fig. 9 (PE, 5 lengths; read off figure)"
+Qwen2.5-0.5B-Instruct,phi_cct,0.0504,0.0771,0.0000,0.0000,"Fig. 10 (mean of PE and EP, 5 lengths; read off figure)"
+Qwen2.5-1.5B-Instruct,tpr_ct,0.2229,0.3503,0.2400,0.2900,"Fig. 9 (PE, 5 lengths; read off figure)"
+Qwen2.5-1.5B-Instruct,fpr,0.1246,0.2091,0.0900,0.1700,"Fig. 9 (PE, 5 lengths; read off figure)"
+Qwen2.5-1.5B-Instruct,phi_cct,0.0695,0.1048,0.2000,0.2000,"Fig. 10 (mean of PE and EP, 5 lengths; read off figure)"
+Qwen2.5-3B-Instruct,tpr_ct,0.1861,0.3409,0.1300,0.3000,"Fig. 9 (PE, 5 lengths; read off figure)"
+Qwen2.5-3B-Instruct,fpr,0.1015,0.2755,0.0700,0.2300,"Fig. 9 (PE, 5 lengths; read off figure)"
+Qwen2.5-3B-Instruct,phi_cct,0.0493,0.1030,0.0800,0.0800,"Fig. 10 (mean of PE and EP, 5 lengths; read off figure)"

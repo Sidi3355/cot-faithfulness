@@ -1,0 +1,23 @@
+{
+  "machine": "Claude Code cloud session: Intel Xeon @ 2.10GHz, 4 vCPU (AVX-512, AMX-BF16), 15 GB RAM, no GPU",
+  "software": "torch 2.15.0 (CPU), transformers 5.22.1, bf16, 4 threads",
+  "prompt": "ComVE, predict-then-explain, demos with explanations, thinking off",
+  "Qwen/Qwen3-0.6B": {
+    "prompt_tokens": 739, "prefill_s": 1.59,
+    "prefix_tokens": 597, "suffix_tokens": 142, "suffix_prefill_with_cached_prefix_s": 0.42,
+    "generate_64_tokens_batch1_s": 5.27, "generate_64_tokens_batch16_s": 40.3,
+    "thinking_traces": [
+      {"new_tokens": 1530, "seconds": 131.3, "terminated": true},
+      {"new_tokens": 842, "seconds": 68.2, "terminated": true},
+      {"new_tokens": 624, "seconds": 48.2, "terminated": true}
+    ]
+  },
+  "Qwen/Qwen3-1.7B": {
+    "prompt_tokens": 739, "prefill_s": 2.58,
+    "prefix_tokens": 597, "suffix_tokens": 142, "suffix_prefill_with_cached_prefix_s": 0.56,
+    "generate_64_tokens_batch1_s": 9.55, "generate_64_tokens_batch16_s": 75.8,
+    "thinking_traces": [
+      {"new_tokens": 439, "seconds": 56.8, "terminated": true}
+    ]
+  }
+}

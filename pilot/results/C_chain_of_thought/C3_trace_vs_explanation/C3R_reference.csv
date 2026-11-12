@@ -1,0 +1,2 @@
+cell,accuracy,flip_rate,real_flip_rate,n1_flip_rate,n2_flip_rate,excess_flip_rate,excess_lo,excess_hi,n2_spontaneous_mention_rate
+"R (thinking off, label only)",0.475,0.2583,0.2583,0.1750,0.2114,0.0470,0.0174,0.0788,

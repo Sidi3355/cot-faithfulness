@@ -1,0 +1,7 @@
+comparison,difference,lo,hi,p_value,metric,p_holm
+Qwen2.5-0.5B-Instruct: tpr_ct very_comprehensive - very_concise,0.0029,-0.0623,0.0647,0.9179,tpr_ct,0.9179
+Qwen2.5-1.5B-Instruct: tpr_ct very_comprehensive - very_concise,0.1274,0.0234,0.2389,0.0172,tpr_ct,0.0344
+Qwen2.5-3B-Instruct: tpr_ct very_comprehensive - very_concise,0.1548,0.0761,0.2444,0.0002,tpr_ct,0.0006
+Qwen2.5-0.5B-Instruct: fpr very_comprehensive - very_concise,0.0085,-0.0078,0.0256,0.3174,fpr,0.3174
+Qwen2.5-1.5B-Instruct: fpr very_comprehensive - very_concise,0.0845,0.0623,0.1076,0.0002,fpr,0.0006
+Qwen2.5-3B-Instruct: fpr very_comprehensive - very_concise,0.1740,0.1424,0.2063,0.0002,fpr,0.0006

@@ -13,10 +13,14 @@ from typing import Literal
 class ModelInfo:
   name: str
   revision: str
-  role: Literal["subject", "anchor", "judge"]
+  # "pilot": used only in the CPU pilot (pilot/), as a replication subject or judge.
+  role: Literal["subject", "anchor", "judge", "pilot"]
   # Nominal parameter count from the model name, as the paper's code uses.
   params: float
   hybrid_thinking: bool
+  # repetition_penalty from the model's generation_config.json. Upstream's greedy
+  # generate calls applied it, so paper-protocol (phase 1) runs do too.
+  default_repetition_penalty: float = 1.0
 
 
 MODELS = {
@@ -27,9 +31,11 @@ MODELS = {
         ModelInfo("Qwen/Qwen3-4B", "1cfa9a7208912126459214e8b04321603b3df60c", "subject", 4e9, True),
         ModelInfo("Qwen/Qwen3-8B", "b968826d9c46dd6066d109eabc6255188de91218", "subject", 8e9, True),
         ModelInfo("Qwen/Qwen3-14B", "40c069824f4251a91eefaf281ebe4c544efd3e18", "subject", 14e9, True),
-        ModelInfo("Qwen/Qwen2.5-1.5B-Instruct", "989aa7980e4cf806f80c7fef2b1adb7bc71aa306", "anchor", 1.5e9, False),
-        ModelInfo("Qwen/Qwen2.5-7B-Instruct", "a09a35458c702b33eeacc393d103063234e8bc28", "anchor", 7e9, False),
-        ModelInfo("Qwen/Qwen2.5-32B-Instruct-AWQ", "5c7cb76a268fc6cfbb9c4777eb24ba6e27f9ee6c", "judge", 32e9, False),
+        ModelInfo("Qwen/Qwen2.5-1.5B-Instruct", "989aa7980e4cf806f80c7fef2b1adb7bc71aa306", "anchor", 1.5e9, False, 1.1),
+        ModelInfo("Qwen/Qwen2.5-7B-Instruct", "a09a35458c702b33eeacc393d103063234e8bc28", "anchor", 7e9, False, 1.05),
+        ModelInfo("Qwen/Qwen2.5-32B-Instruct-AWQ", "5c7cb76a268fc6cfbb9c4777eb24ba6e27f9ee6c", "judge", 32e9, False, 1.05),
+        ModelInfo("Qwen/Qwen2.5-0.5B-Instruct", "7ae557604adf67be50417f59c2c2f167def9a775", "pilot", 0.5e9, False, 1.1),
+        ModelInfo("Qwen/Qwen2.5-3B-Instruct", "aa8e72537993ba99e69dfaafa59ed015b17504d1", "pilot", 3e9, False, 1.05),
     )
 }
 

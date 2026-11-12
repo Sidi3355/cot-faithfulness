@@ -131,7 +131,7 @@ class InteractionResult:
 INTERACTION_FORMULA = "E ~ I * mode + log10_params + base_correct"
 
 
-def interaction_gee(df: pd.DataFrame) -> InteractionResult:
+def interaction_gee(df: pd.DataFrame, formula: str = INTERACTION_FORMULA) -> InteractionResult:
   """GEE logistic regression; returns the I x mode coefficient.
 
   Expects columns E, I (0/1), mode (0 = thinking off, 1 = thinking on),
@@ -141,10 +141,11 @@ def interaction_gee(df: pd.DataFrame) -> InteractionResult:
   import statsmodels.api as sm
   import statsmodels.formula.api as smf
 
-  cols = ["E", "I", "mode", "log10_params", "base_correct", "example_id"]
+  # With a single model, log10_params is constant: drop it from the formula.
+  cols = [c for c in ("E", "I", "mode", "log10_params", "base_correct") if c in formula] + ["example_id"]
   data = df[cols].dropna()
   model = smf.gee(
-      INTERACTION_FORMULA, groups="example_id", data=data,
+      formula, groups="example_id", data=data,
       family=sm.families.Binomial(), cov_struct=sm.cov_struct.Exchangeable(),
   )
   fit = model.fit()

@@ -1,0 +1,18 @@
+{
+  "started": "2026-11-03T02:31:05",
+  "git_commit": "79def91a799250f8175d7e1525ddd012f6aeabdf",
+  "engine": "hf_cpu",
+  "dtype": "float32",
+  "versions": {
+    "torch": "2.13.0",
+    "transformers": "5.19.0",
+    "numpy": "2.3.5",
+    "pandas": "2.3.3"
+  },
+  "model_revision": "aa8e72537993ba99e69dfaafa59ed015b17504d1",
+  "interventions_sha256": "8be3e524bfd83612f3ba1ac7bf291e5b15f90bb2a274d84d9c779b9c2ec9c06e",
+  "n_label_tokens": 2,
+  "label_scores": "processed (after default processors)",
+  "device": "cpu",
+  "gpu": null
+}

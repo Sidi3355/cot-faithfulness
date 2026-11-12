@@ -3,6 +3,8 @@
 Counterfactual faithfulness of Qwen3 chain-of-thought traces, built on Siegel et al. (arXiv 2503.13445).
 
 - [PLAN.md](PLAN.md): experimental plan
+- [pilot/](pilot/README.md): smaller-scale pilot that runs before the EC2 instance exists
+- [pilot/results/](pilot/results/README.md): pilot tables, figures and raw outputs, with [notes](pilot/results/NOTES.md) on each run
 
 ## Setup (CPU parts)
 
