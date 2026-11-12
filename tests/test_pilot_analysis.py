@@ -112,6 +112,9 @@ def test_analysis_end_to_end(tmp_path, monkeypatch, splits):
       assert (out / folder / f).exists(), f
   comp = pd.read_csv(out / analyze.R_DIR / "paper_comparison.csv")
   assert len(comp) == 9 and comp["paper_min"].notna().all()  # 3 models x (CT, FPR, phi-CCT).
+  _load("summarize").write_summary(analyze)
+  summary = (out / "SUMMARY.md").read_text()
+  assert "## Arm R" in summary and "### C2" in summary and "nan" not in summary
   dummies = pd.read_csv(out / analyze.C2_DIR / "C2_dummy_explainers.csv")
   copier = dummies[dummies.explainer.str.startswith("copier")]
   assert (copier.tpr_ct == 1).all() and copier.phi_cct.isna().all()
