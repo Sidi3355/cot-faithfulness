@@ -1,7 +1,7 @@
 # Pilot: experiment notes
 
-What was run, on which models, and what each test measures. No conclusions; the numbers are in
-the tables (see [README.md](README.md) for where each one is).
+What was run, on which models, and what each test measures. No conclusions. The key numbers are
+in [SUMMARY.md](SUMMARY.md); every table is described in [README.md](README.md).
 
 ## The question
 
