@@ -4,12 +4,14 @@ All pilot output: tables, figures and every raw model response. There is no writ
 
 - **[SUMMARY.md](SUMMARY.md)**: the key numbers and statistical tests on one page.
 - **[NOTES.md](NOTES.md)**: what each run and test is.
+- **[EXAMPLES.md](EXAMPLES.md)**: real thinking traces and explanations for 3 questions.
 - This file: where everything is, and what every column means.
 
 ```
 results/
 ├── SUMMARY.md                       key numbers and tests on one page
 ├── NOTES.md                         what was run and what each test measures
+├── EXAMPLES.md                      real traces and explanations for 3 questions
 ├── interventions/                   the inserted words used by every run
 ├── R_replication/                   arm R: Qwen2.5-0.5B/1.5B/3B-Instruct, 150 questions
 ├── C_chain_of_thought/              arm C: Qwen3-0.6B, 40 questions
@@ -154,4 +156,8 @@ To regenerate every table and figure from `raw/` (needs the ComVE data: `DATASET
 
 ```bash
 .venv/bin/python pilot/scripts/summarize.py
+```
+
+```bash
+.venv/bin/python pilot/scripts/examples.py
 ```

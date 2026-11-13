@@ -1,7 +1,8 @@
 # Pilot: experiment notes
 
 What was run, on which models, and what each test measures. No conclusions. The key numbers are
-in [SUMMARY.md](SUMMARY.md); every table is described in [README.md](README.md).
+in [SUMMARY.md](SUMMARY.md); every table is described in [README.md](README.md); real outputs are
+in [EXAMPLES.md](EXAMPLES.md).
 
 ## The question
 
